@@ -1,0 +1,2 @@
+# Predict ORFs from coordinateds using either ref genome or get sequences from sam/bam -> fast/fq
+# https://github.com/GenomeRIK/tama/tree/master/tama_go/orf_nmd_predictions - might use the Tama logic

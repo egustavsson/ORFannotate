@@ -1,0 +1,1 @@
+.DS_Store\n__pycache__/\n*.pyc\n*.pyo\n*.db\n*.sqlite\n.env\n*.egg-info/\n.envrc\n.mypy_cache/\noutput/\n*.log\n*.bak\n

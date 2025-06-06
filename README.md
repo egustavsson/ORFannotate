@@ -1,11 +1,90 @@
 # ORFannotate
 
-<!-- badges: start -->
-![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-<!-- badges: end -->
+`ORFannotate` is a modular pipeline for predicting open reading frames (ORFs), annotating coding sequences (CDS) in GTF files, and summarizing transcript coding status including potential nonsense-mediated decay (NMD).
 
-The `ORFannotate` tool is designed to predict open reading frames (ORFs) and assess nonsense-mediated decay (NMD) from a given GTF/GFF file containing transcript annotations. It processes transcript structures to identify coding sequences (CDS), determine potential translation start and stop sites, and infer whether transcripts are likely to be subject to NMD.
+---
 
-The tool outputs ORF and NMD predictions and updates the input GTF/GFF file with annotated coding exons (CDS) for downstream analyses. ORFannotate provides an efficient way to refine transcript annotations with coding information, enhancing downstream functional analyses of RNA sequencing data.
+## Features
+- Extract transcript sequences from a GTF and genome FASTA
+- Predict ORFs using [`orfipy`](https://github.com/urmi-21/orfipy)
+- Annotate GTF files with CDS features
+- Identify likely NMD targets (simple heuristic)
+- Output detailed TSV with:
+  - transcript ID, gene, chrom, strand
+  - coding status
+  - ORF length, CDS length
+  - predicted NMD
+  - transcript, CDS, and amino acid sequences
+
+---
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/YOUR_USERNAME/ORFannotate.git
+cd ORFannotate
+```
+
+2. Create the environment:
+```bash
+conda env create -f environment.yml
+conda activate ORFannotate
+```
+
+> Required tools: `gffread`, `orfipy`, `gffutils`, `biopython`
+
+---
+
+## Usage
+
+```bash
+python ORFannotate.py <input.gtf> <genome.fasta> <output_dir>
+```
+
+**Example:**
+```bash
+python ORFannotate.py annotations.gtf genome.fa output/
+```
+
+This will produce:
+- `output/transcripts.fa`: transcript sequences
+- `output/predicted_orfs.fasta`: ORF predictions from orfipy
+- `output/annotated.gtf`: GTF annotated with CDS features
+- `output/transcript_summary.tsv`: full summary table
+
+---
+
+## 📁 Directory Structure
+```bash
+ORFannotate/
+├── ORFannotate.py          # Main script
+├── environment.yml         # Conda environment
+├── orfannotate/            # Modular Python package
+│   ├── __init__.py
+│   ├── nmd.py
+│   ├── orf_parser.py
+│   ├── gtf_annotation.py
+│   ├── summarise.py
+│   └── io_utils.py
+├── README.md
+├── LICENSE
+└── tests/                  # Optional test cases
+```
+
+---
+
+## NMD Prediction
+NMD is predicted based on the distance between the ORF stop codon and the last exon junction. Transcripts with a stop codon >50 nt upstream of the final junction are flagged as likely NMD targets.
+
+---
+
+## License
+This project is licensed under the MIT License. See `LICENSE` for details.
+
+---
+
+## Acknowledgements
+- [orfipy](https://github.com/urmi-21/orfipy)
+- [gffutils](https://github.com/daler/gffutils)
+- [Biopython](https://biopython.org/)

@@ -1,0 +1,11 @@
+name: ORFannotate
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python
+  - orfipy
+  - gffutils
+  - gffread
+  - biopyton

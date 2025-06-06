@@ -32,7 +32,7 @@ conda env create -f environment.yml
 conda activate ORFannotate
 ```
 
-> Required tools: `gffread`, `orfipy`, `gffutils`, `biopython`
+> Note: All required tools including `orfipy` and `gffread` are installed automatically from the `bioconda` channel when creating the environment.
 
 ---
 

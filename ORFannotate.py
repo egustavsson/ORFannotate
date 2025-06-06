@@ -1,5 +1,6 @@
 import os
 import argparse
+import subprocess
 from orfannotate.io_utils import extract_transcripts
 from orfannotate.orf_parser import parse_orfs
 from orfannotate.nmd import detect_nmd
@@ -23,7 +24,13 @@ def main():
     extract_transcripts(args.gtf, args.genome_fasta, transcript_fasta)
 
     print("[Step 2] Running ORFipy...")
-    os.system(f"orfipy {transcript_fasta} --outfmt fasta --min 30 --strand both --out {orf_fasta}")
+    subprocess.run([
+    "orfipy", transcript_fasta,
+    "--outfmt", "fasta",
+    "--min", "30",
+    "--strand", "both",
+    "--out", orf_fasta
+], check=True)
 
     print("[Step 3] Annotating GTF with CDS features...")
     annotate_gtf(args.gtf, orf_fasta, annotated_gtf)

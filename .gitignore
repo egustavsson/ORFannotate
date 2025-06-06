@@ -1,14 +1,27 @@
+# macOS
 .DS_Store
+
+# Python
 __pycache__/
 *.pyc
-.pyo
+*.pyo
+*.pyd
+*.egg-info/
+.mypy_cache/
+
+# Environments
+.env
+.envrc
+.conda-lock/
+
+# Databases and cache
 *.db
 *.sqlite
-.env
-*.egg-info/
-.envrc
-.mypy_cache/
+
+# Output and temp files
 output/
 *.log
 *.bak
+
+# IDEs and notebooks
 .vscode/

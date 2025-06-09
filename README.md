@@ -75,7 +75,7 @@ ORFannotate/
 ├── LICENSE
 └── README.md
 
----
+```
 
 ## NMD Prediction
 Nonsense-mediated decay (NMD) is predicted using a simple rule:
@@ -83,12 +83,8 @@ If the stop codon lies >50 nt upstream of the final exon–exon junction, the tr
 
 This conservative approach is fast and works well for general transcriptome-level analyses, but may not capture all context-dependent cases.
 
----
-
 ## License
 This project is licensed under the MIT License. See `LICENSE` for details.
-
----
 
 ## Acknowledgements
 - [CPAT](https://github.com/urmi-21/orfipy)

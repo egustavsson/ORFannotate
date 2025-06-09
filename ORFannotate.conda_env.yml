@@ -4,8 +4,10 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - python
+  - python=3.10
   - orfipy
+  - cpat
   - gffutils
   - gffread
-  - biopyton
+  - biopython
+  - pandas

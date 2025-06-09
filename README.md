@@ -28,7 +28,7 @@ cd ORFannotate
 
 2. Create the environment:
 ```bash
-conda env create -f environment.yml
+conda env create -f ORFannotate.conda_env.yml
 conda activate ORFannotate
 ```
 

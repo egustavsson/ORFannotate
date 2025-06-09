@@ -1,4 +1,4 @@
-def detect_nmd(orf_end, junctions, strand):
+def predict_nmd(orf_end, junctions, strand):
     if not junctions:
         return 'FALSE'
     if strand == '+':

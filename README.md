@@ -1,81 +1,88 @@
 # ORFannotate
 
-`ORFannotate` is a modular pipeline for predicting open reading frames (ORFs), annotating coding sequences (CDS) in GTF files, and summarizing transcript coding status including potential nonsense-mediated decay (NMD).
+`ORFannotate` is a modular pipeline for predicting open reading frames (ORFs), annotating coding sequences (CDS) in GTF/GFF files, and summarizing transcript coding potential, including a simple heuristic for nonsense-mediated decay (NMD).For a comprehensive isoform-level quality assessment, consider using `SQANTI3` in parallel.
 
 ---
 
 ## Features
-- Extract transcript sequences from a GTF and genome FASTA
-- Predict ORFs using [`orfipy`](https://github.com/urmi-21/orfipy)
-- Annotate GTF files with CDS features
+- Extract transcript sequences from a GTF/GFF and genome FASTA
+- Predict and score ORFs using [`CPAT`](https://cpat.readthedocs.io/en/latest/#introduction)
+- Annotate GTF/GFF files with CDS features
 - Identify likely NMD targets (simple heuristic)
-- Output detailed TSV with:
-  - transcript ID, gene, chrom, strand
-  - coding status
-  - ORF length, CDS length
-  - predicted NMD
-  - transcript, CDS, and amino acid sequences
+- Generate a rich tab-separated summary of ORF and coding properties, including:
+  - Transcript and gene ID, strand, chromosome
+  - ORF start/end, frame, coding probability
+  - ORF/CDS length (nt/aa), junction count
+  - Predicted NMD flag
+  - Nucleotide and protein sequence
 
 ---
 
 ## Installation
 
 1. Clone the repository:
-```bash
+```
 git clone https://github.com/egustavsson/ORFannotate.git
 cd ORFannotate
 ```
 
 2. Create the environment:
-```bash
+```
 conda env create -f ORFannotate.conda_env.yml
 conda activate ORFannotate
 ```
 
-> Note: All required tools including `orfipy` and `gffread` are installed automatically from the `bioconda` channel when creating the environment.
+> Note: All required tools are installed automatically when creating the environment.
 
 ---
 
 ## Usage
 
-```bash
+```
 python ORFannotate.py <input.gtf> <genome.fasta> <output_dir>
 ```
 
 **Example:**
-```bash
+```
 python ORFannotate.py annotations.gtf genome.fa output/
 ```
 
-This will produce:
-- `output/transcripts.fa`: transcript sequences
-- `output/predicted_orfs.fasta`: ORF predictions from orfipy
-- `output/annotated.gtf`: GTF annotated with CDS features
-- `output/transcript_summary.tsv`: full summary table
+After a successful run, the following files will be saved in <output_dir>:
 
+| **File**                 | **Description**                                 |
+| ------------------------ | ----------------------------------------------- |
+| `transcripts.fa`         | FASTA file of transcript sequences              |
+| `cpat.ORF_prob.best.tsv` | CPAT output for the best ORF per transcript     |
+| `cpat_debug.tsv`         | (Optional) full CPAT-scored ORFs                |
+| `annotated.gtf`          | GTF with CDS features added to transcripts      |
+| `orf_summary.tsv`        | Final summary table with ORF/NMD annotations    |
+| `CPAT_run_info.log`      | CPAT runtime log (captured in output directory) |
+
+
+> All intermediate and final outputs are stored cleanly within the output directory. Temporary `.db` files are avoided by using in-memory databases.
 ---
 
 ## 📁 Directory Structure
-```bash
-ORFannotate/
-├── ORFannotate.py          # Main script
-├── environment.yml         # Conda environment
-├── orfannotate/            # Modular Python package
-│   ├── __init__.py
-│   ├── nmd.py
-│   ├── orf_parser.py
-│   ├── gtf_annotation.py
-│   ├── summarise.py
-│   └── io_utils.py
-├── README.md
-├── LICENSE
-└── tests/                  # Optional test cases
 ```
+ORFannotate/
+├── ORFannotate.py                # Main script (entry point)
+├── ORFannotate.conda_env.yml     # Conda environment file
+├── orfannotate/                  # Modular Python package
+│   ├── __init__.py
+│   ├── gtf_annotation.py         # GTF handling and CDS annotation
+│   ├── nmd.py                    # NMD prediction logic
+│   ├── orf_filter.py             # CPAT result parsing and filtering
+│   ├── summarise.py              # Final summary writer
+├── LICENSE
+└── README.md
 
 ---
 
 ## NMD Prediction
-NMD is predicted based on the distance between the ORF stop codon and the last exon junction. Transcripts with a stop codon >50 nt upstream of the final junction are flagged as likely NMD targets.
+Nonsense-mediated decay (NMD) is predicted using a simple rule:
+If the stop codon lies >50 nt upstream of the final exon–exon junction, the transcript is flagged as a likely NMD target.
+
+This conservative approach is fast and works well for general transcriptome-level analyses, but may not capture all context-dependent cases.
 
 ---
 
@@ -85,6 +92,6 @@ This project is licensed under the MIT License. See `LICENSE` for details.
 ---
 
 ## Acknowledgements
-- [orfipy](https://github.com/urmi-21/orfipy)
+- [CPAT](https://github.com/urmi-21/orfipy)
 - [gffutils](https://github.com/daler/gffutils)
 - [Biopython](https://biopython.org/)

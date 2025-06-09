@@ -60,7 +60,6 @@ After a successful run, the following files will be saved in <output_dir>:
 
 
 > All intermediate and final outputs are stored cleanly within the output directory. Temporary `.db` files are avoided by using in-memory databases.
----
 
 ## 📁 Directory Structure
 ```

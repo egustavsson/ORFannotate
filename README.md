@@ -68,14 +68,14 @@ After a successful run, the following files will be saved in <output_dir>:
 | `transcripts.fa`         | FASTA file of transcript sequences              |
 | `cpat.ORF_prob.best.tsv` | CPAT output for the best ORF per transcript     |
 | `cpat_debug.tsv`         | (Optional) full CPAT-scored ORFs                |
-| `annotated.gtf`          | GTF with CDS features added to transcripts      |
-| `orf_summary.tsv`        | Final summary table with ORF/NMD annotations    |
+| `ORFannotate_annotated.gtf`          | GTF with CDS features added to transcripts      |
+| `ORFannotate_summary.tsv`        | Final summary table with ORF/NMD annotations    |
 | `CPAT_run_info.log`      | CPAT runtime log (captured in output directory) |
 
 
 > All intermediate and final outputs are stored cleanly within the output directory. Temporary `.db` files are avoided by using in-memory databases.
 
-## 📁 Directory Structure
+## Directory Structure
 ```
 ORFannotate/
 ├── ORFannotate.py                # Main script (entry point)
@@ -98,7 +98,7 @@ If the stop codon lies >50 nt upstream of the final exon–exon junction, the tr
 This conservative approach is fast and works well for general transcriptome-level analyses, but may not capture all context-dependent cases.
 
 ## License
-This project is licensed under the MIT License. See `LICENSE` for details.
+This project is licensed under the GPLv3 License. See `LICENSE` for details.
 
 ## Acknowledgements
 - [CPAT](https://github.com/urmi-21/orfipy)

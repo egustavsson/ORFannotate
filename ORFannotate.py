@@ -75,11 +75,11 @@ def main():
     cds_features = list(build_cds_features(gtf_db, best_orfs))
 
 
-    annotated_gtf = os.path.join(output_dir, "annotated.gtf")
+    annotated_gtf = os.path.join(output_dir, "ORFannotate_annotated.gtf")
     annotate_gtf_with_cds(gtf_path, cds_features, annotated_gtf)
 
     print("[Step 5] Generating final summary TSV...")
-    summary_path = os.path.join(output_dir, "orf_summary.tsv")
+    summary_path = os.path.join(output_dir, "ORFannotate_summary.tsv")
 
     generate_summary(
     best_orfs,

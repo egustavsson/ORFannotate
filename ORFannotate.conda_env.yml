@@ -5,9 +5,8 @@ channels:
   - defaults
 dependencies:
   - python=3.10
-  - orfipy
-  - cpat
-  - gffutils
-  - gffread
-  - biopython
-  - pandas
+  - cpat=3.0.5
+  - gffutils=0.13
+  - gffread=0.12.7
+  - biopython=1.85
+  - pandas=2.3.0

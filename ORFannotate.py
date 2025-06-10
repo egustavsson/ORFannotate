@@ -51,7 +51,7 @@ def main():
     transcript_fa = os.path.join(output_dir, "transcripts.fa")
     extract_transcripts_from_gtf(gtf_path, genome_fa, transcript_fa)
 
-    print("[Step 2] Running CPAT to predict and score ORFs...")
+    print("[Step 2] Predicting and scoring ORFs...")
     run_cpat(transcript_fa, output_dir)
 
     print("[Step 3] Annotating GTF with CDS features...")
@@ -67,7 +67,7 @@ def main():
         sort_attribute_values=True
     )
 
-    print("[Step 4] Parsing CPAT results...")
+    print("[Step 4] Parsing ORF results...")
     cpat_scores_path = os.path.join(output_dir, "cpat.ORF_prob.best.tsv")
     cpat_debug = os.path.join(output_dir, "cpat_debug.tsv")
     best_orfs = get_best_orfs_by_cpat(cpat_scores_path, debug_output_path=cpat_debug)

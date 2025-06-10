@@ -35,6 +35,20 @@ conda activate ORFannotate
 > Note: All required tools are installed automatically when creating the environment.
 
 ---
+## Input
+
+The pipeline requires:
+
+| File           | Format       | Notes                                                                 |
+|----------------|--------------|-----------------------------------------------------------------------|
+| GTF/GFF file   | `.gtf` or `.gff` | Must contain `transcript` and `exon` features. Transcript IDs should be unique and consistent. |
+| Genome FASTA   | `.fa`, `.fasta` | Reference genome matching the GTF. Must have transcript chromosome names matching those in the annotation. |
+
+> Both `.gtf` and `.gff` formats are supported as long as feature labels are compatible (`transcript`, `exon`, etc.).
+
+Ensure that your GTF includes transcript-level features (not just exons), or the pipeline may skip some records or produce incomplete outputs.
+
+---
 
 ## Usage
 

@@ -52,25 +52,42 @@ Ensure that your GTF includes transcript-level features (not just exons), or the
 
 ## Usage
 
+To see available arguments:
+```bash
+python ORFannotate.py --help
 ```
+This will print:
+
+```
+usage: ORFannotate.py [-h] gtf genome output_dir
+
+ORFannotate – predict coding ORFs, annotate GTF, and generate summaries.
+
+positional arguments:
+  gtf           Input GTF or GFF file with transcript and exon features
+  genome        Reference genome in FASTA format
+  output_dir    Directory to write all outputs
+```
+To run the full pipeline:
+```bash
 python ORFannotate.py <input.gtf> <genome.fasta> <output_dir>
 ```
 
 **Example:**
-```
-python ORFannotate.py annotations.gtf genome.fa output/
+```bash
+python ORFannotate.py transcripts.gtf genome.fa output/
 ```
 
 After a successful run, the following files will be saved in <output_dir>:
 
-| **File**                 | **Description**                                 |
-| ------------------------ | ----------------------------------------------- |
-| `transcripts.fa`         | FASTA file of transcript sequences              |
-| `cpat.ORF_prob.best.tsv` | CPAT output for the best ORF per transcript     |
-| `cpat_debug.tsv`         | (Optional) full CPAT-scored ORFs                |
-| `ORFannotate_annotated.gtf`          | GTF with CDS features added to transcripts      |
-| `ORFannotate_summary.tsv`        | Final summary table with ORF/NMD annotations    |
-| `CPAT_run_info.log`      | CPAT runtime log (captured in output directory) |
+| **File**                      | **Description**                                 |
+| ----------------------------- | ----------------------------------------------- |
+| `transcripts.fa`              | FASTA file of transcript sequences              |
+| `cpat.ORF_prob.best.tsv`      | CPAT output for the best ORF per transcript     |
+| `cpat_debug.tsv`              | (Optional) full CPAT-scored ORFs                |
+| `ORFannotate_annotated.gtf`   | GTF with CDS features added to transcripts      |
+| `ORFannotate_summary.tsv`     | Final summary table with ORF/NMD annotations    |
+| `CPAT_run_info.log`           | CPAT runtime log (captured in output directory) |
 
 
 > All intermediate and final outputs are stored cleanly within the output directory. Temporary `.db` files are avoided by using in-memory databases.

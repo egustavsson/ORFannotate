@@ -44,7 +44,7 @@ def annotate_gtf_with_cds(gtf_path, cds_features, output_path):
     for feat in cds_features:
         cds_by_transcript[feat['attributes']['transcript_id']].append(feat)
 
-    written_cds_for = set()                      # ← new
+    written_cds_for = set()
 
     with open(gtf_path) as fin, open(output_path, "w") as fout:
         for line in fin:

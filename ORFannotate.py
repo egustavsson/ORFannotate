@@ -41,9 +41,20 @@ def run_cpat(transcript_fasta, output_dir):
         )
 
 def main():
-    gtf_path = sys.argv[1]
-    genome_fa = sys.argv[2]
-    output_dir = sys.argv[3]
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="ORFannotate – predict coding ORFs, annotate GTF, and generate summaries."
+    )
+    parser.add_argument("gtf", help="Input GTF or GFF file with transcript and exon features")
+    parser.add_argument("genome", help="Reference genome in FASTA format")
+    parser.add_argument("output_dir", help="Directory to write all outputs")
+
+    args = parser.parse_args()
+
+    gtf_path = args.gtf
+    genome_fa = args.genome
+    output_dir = args.output_dir
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -73,20 +84,12 @@ def main():
     best_orfs = get_best_orfs_by_cpat(cpat_scores_path, debug_output_path=cpat_debug)
 
     cds_features = list(build_cds_features(gtf_db, best_orfs))
-
-
     annotated_gtf = os.path.join(output_dir, "ORFannotate_annotated.gtf")
     annotate_gtf_with_cds(gtf_path, cds_features, annotated_gtf)
 
     print("[Step 5] Generating final summary TSV...")
     summary_path = os.path.join(output_dir, "ORFannotate_summary.tsv")
-
-    generate_summary(
-    best_orfs,
-    transcript_fa,
-    gtf_path,
-    summary_path
-)
+    generate_summary(best_orfs, transcript_fa, gtf_path, summary_path)
 
     print("ORFannotate completed successfully.")
 

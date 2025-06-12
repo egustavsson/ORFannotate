@@ -7,7 +7,7 @@
 ## Features
 - Extract transcript sequences from a GTF/GFF and genome FASTA
 - Predict and score ORFs using [`CPAT`](https://cpat.readthedocs.io/en/latest/#introduction)
-- Annotate GTF/GFF files with CDS features
+- Annotate GTF/GFF files with CDS features (only for coding transcripts)
 - Identify likely NMD targets (simple heuristic)
 - Generate a rich tab-separated summary of ORF and coding properties, including:
   - Transcript and gene ID, strand, chromosome
@@ -15,6 +15,7 @@
   - ORF/CDS length (nt/aa), junction count
   - Predicted NMD flag
   - Nucleotide and protein sequence
+  - `coding_class` classification (coding / noncoding)
 
 ---
 
@@ -59,18 +60,21 @@ python ORFannotate.py --help
 This will print:
 
 ```
-usage: ORFannotate.py [-h] gtf genome output_dir
+usage: ORFannotate.py [-h] --gtf GTF --fa FA --outdir OUTDIR [--coding-cutoff CODING_CUTOFF]
 
 ORFannotate – predict coding ORFs, annotate GTF, and generate summaries.
 
-positional arguments:
-  gtf           Input GTF or GFF file with transcript and exon features
-  genome        Reference genome in FASTA format
-  output_dir    Directory to write all outputs
+required arguments:
+  --gtf             Input GTF or GFF file with transcript and exon features
+  --fa              Reference genome in FASTA format
+  --outdir          Directory to write all outputs
+
+optional arguments:
+  --coding-cutoff   CPAT probability threshold to classify coding vs noncoding (default: 0.364)
 ```
 To run the full pipeline:
 ```bash
-python ORFannotate.py <input.gtf> <genome.fasta> <output_dir>
+python ORFannotate.py --gtf annotations.gtf --fa genome.fa --outdir output/
 ```
 
 **Example:**
@@ -90,7 +94,7 @@ After a successful run, the following files will be saved in <output_dir>:
 | `CPAT_run_info.log`           | CPAT runtime log (captured in output directory) |
 
 
-> All intermediate and final outputs are stored cleanly within the output directory. Temporary `.db` files are avoided by using in-memory databases.
+> Only transcripts classified as coding (by CPAT probability ≥ 0.364 by default) are annotated with CDS in the output GTF. You can override the cutoff using the --coding-cutoff argument.
 
 ## Directory Structure
 ```
@@ -99,6 +103,7 @@ ORFannotate/
 ├── ORFannotate.conda_env.yml     # Conda environment file
 ├── orfannotate/                  # Modular Python package
 │   ├── __init__.py
+|   ├── transcript_extraction.py  # Handles extraction of transcript sequences
 │   ├── gtf_annotation.py         # GTF handling and CDS annotation
 │   ├── nmd.py                    # NMD prediction logic
 │   ├── orf_filter.py             # CPAT result parsing and filtering

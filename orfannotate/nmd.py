@@ -1,10 +1,12 @@
 def predict_nmd(orf_end, junctions, strand):
     if not junctions:
         return 'FALSE'
+
     if strand == '+':
-        last_junction = junctions[-1][0]
-        distance = orf_end - last_junction
+        last_donor = junctions[-1][0]
+        distance = last_donor - orf_end
     else:
-        last_junction = junctions[0][1]
-        distance = last_junction - orf_end
-    return 'TRUE' if distance < -50 else 'FALSE'
+        first_acceptor = junctions[0][1]
+        distance = orf_end - first_acceptor
+
+    return 'TRUE' if distance > 50 else 'FALSE'

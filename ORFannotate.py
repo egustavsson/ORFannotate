@@ -100,7 +100,7 @@ def main():
 
     print("[Step 5] Generating final summary TSV...")
     summary_tsv = os.path.join(output_dir, "ORFannotate_summary.tsv")
-    generate_summary(best_orfs, transcript_fasta, gtf_path, summary_tsv, coding_cutoff=coding_cutoff)
+    generate_summary(best_orfs, transcript_fasta, annotated_gtf, summary_tsv, coding_cutoff=coding_cutoff)
 
     print("ORFannotate completed successfully.")
 

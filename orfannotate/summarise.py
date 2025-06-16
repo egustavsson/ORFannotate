@@ -4,6 +4,8 @@ import logging
 from pathlib import Path
 from typing import List, Tuple
 import tempfile
+import json
+import argparse
 
 import pandas as pd
 from Bio import SeqIO
@@ -117,7 +119,6 @@ def generate_summary(best_orfs: dict, transcript_fa: str | Path, gtf_path: str |
 
 
 if __name__ == "__main__":
-    import json, argparse
 
     cli = argparse.ArgumentParser(description="Write ORF summary TSV")
     cli.add_argument("--best-orfs-json", required=True)

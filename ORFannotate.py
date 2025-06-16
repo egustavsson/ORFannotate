@@ -2,6 +2,7 @@ import os
 import subprocess
 import logging
 import gffutils
+import argparse
 
 # Suppress warnings unless explicitly needed
 logging.basicConfig(level=logging.ERROR)
@@ -43,7 +44,6 @@ def run_cpat(transcript_fasta, output_dir):
 
 
 def main():
-    import argparse
 
     parser = argparse.ArgumentParser(
         description="ORFannotate – predict coding ORFs, annotate GTF, and generate summaries."

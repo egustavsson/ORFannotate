@@ -19,27 +19,28 @@ def run_cpat(transcript_fasta, output_dir):
     Run CPAT to predict and score ORFs on transcript sequences.
     """
     output_prefix = os.path.join(output_dir, "cpat")
+    cpat_log_path = os.path.join(output_dir, "CPAT.log")
     hexamer_path = os.path.abspath("data/Human_Hexamer.tsv")
     logit_model_path = os.path.abspath("data/Human_logitModel.RData")
 
     cpat_cmd = [
         "cpat.py",
-        "-g", transcript_fasta,
+        "-g", os.path.abspath(transcript_fasta),
         "-x", hexamer_path,
         "-d", logit_model_path,
         "--top-orf=10",
         "--min-orf=75",
+        "--log-file", cpat_log_path,
         "-o", output_prefix
     ]
 
-    cpat_log_path = os.path.join(output_dir, "CPAT_run_info.log")
-    with open(cpat_log_path, "w") as log_file:
+    run_log_path = os.path.join(output_dir, "CPAT_run_info.log")
+    with open(run_log_path, "w") as log_file:
         subprocess.run(
             cpat_cmd,
             stdout=log_file,
             stderr=subprocess.STDOUT,
-            check=True,
-            cwd=output_dir
+            check=True
         )
 
 
@@ -80,7 +81,7 @@ def main():
         keep_order=True,
         disable_infer_transcripts=True,
         disable_infer_genes=True,
-        merge_strategy="merge",
+        merge_strategy="create_unique",
         sort_attribute_values=True
     )
 

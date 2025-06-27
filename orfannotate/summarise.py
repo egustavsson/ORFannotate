@@ -34,7 +34,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_path, output_path, coding_cut
             keep_order=True,
             disable_infer_transcripts=True,
             disable_infer_genes=True,
-            merge_strategy="merge",
+            merge_strategy="create_unique",
             sort_attribute_values=True,
             id_spec={                 #  ←  makes CDS rows attach to transcript
                 "transcript": "transcript_id",

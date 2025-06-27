@@ -12,7 +12,7 @@ def extract_transcripts_from_gtf(gtf_path, genome_fa, out_fasta):
         keep_order=True,
         disable_infer_transcripts=True,
         disable_infer_genes=True,
-        merge_strategy="merge",
+        merge_strategy="create_unique",
         sort_attribute_values=True
     )
     db = gffutils.FeatureDB(db_path)

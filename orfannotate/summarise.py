@@ -16,16 +16,16 @@ LOGGER = logging.getLogger(__name__)
 logging.basicConfig(format="%(levelname)s:%(name)s:%(message)s", level=logging.INFO)
 
 
-# ---------------------------- helpers ---------------------------- #
+# Help functions
 def _load_transcript_sequences(transcript_fasta: Path):
-    """Return a dict keyed by transcript ID → SeqRecord."""
+    
     return SeqIO.to_dict(SeqIO.parse(str(transcript_fasta), "fasta"))
 
 
-# ------------------------- main routine -------------------------- #
+# Main routine
 def generate_summary(best_orfs, transcript_fa, gtf_path, output_path, coding_cutoff=0.364):
 
-    # ── build a temp gffutils DB that links CDS to transcript_id ──
+    # build a temp gffutils DB that links CDS to transcript_id
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmpdb:
         gffutils.create_db(
             str(gtf_path),
@@ -36,10 +36,10 @@ def generate_summary(best_orfs, transcript_fa, gtf_path, output_path, coding_cut
             disable_infer_genes=True,
             merge_strategy="create_unique",
             sort_attribute_values=True,
-            id_spec={                 #  ←  makes CDS rows attach to transcript
+            id_spec={
                 "transcript": "transcript_id",
-                "exon":        "transcript_id",
-                "CDS":         "transcript_id",
+                "exon": "transcript_id",
+                "CDS": "transcript_id",
             },
         )
         db = gffutils.FeatureDB(tmpdb.name)
@@ -47,7 +47,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_path, output_path, coding_cut
     transcript_seqs = _load_transcript_sequences(Path(transcript_fa))
     summary = []
 
-    # ---------- iterate over EVERY transcript that has a sequence ----------
+    # iterate over EVERY transcript that has a sequence
     all_tx_ids = {t.id for t in db.features_of_type("transcript")}
     all_tx_ids &= set(transcript_seqs.keys())
 
@@ -66,7 +66,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_path, output_path, coding_cut
         strand = tx.strand
         gene_id = tx.attributes.get("gene_id", ["NA"])[0]
 
-        # --- ORF fields ---
+        # ORF fields
         if has_orf:
             orf_start = orf_data["start"]
             orf_end_tx = orf_data["end"]
@@ -82,13 +82,13 @@ def generate_summary(best_orfs, transcript_fa, gtf_path, output_path, coding_cut
             nt_seq = aa_seq = "NA"
             orf_nt_len = orf_aa_len = "NA"
 
-        # --- CDS stop in genomic coords ---
+        # CDS stop in genomic coords
         cds_feats = list(db.children(tx, featuretype="CDS", order_by="start"))
         orf_end_gen = None
         if cds_feats:
             orf_end_gen = max(f.end for f in cds_feats) if strand == "+" else min(f.start for f in cds_feats)
 
-        # --- junction list ---
+        # junction list
         exons = list(db.children(tx, featuretype="exon", order_by="start"))
         if strand == '-':
             exons = exons[::-1]
@@ -98,14 +98,14 @@ def generate_summary(best_orfs, transcript_fa, gtf_path, output_path, coding_cut
         ]
         junction_count = len(junctions)
 
-        # --- distance stop → last EJ ---
+        # distance stop → last junction
         if has_orf and orf_end_gen is not None and junctions:
             last_j = junctions[-1][0] if strand == '+' else junctions[0][1]
             stop_to_last_ej = last_j - orf_end_gen if strand == '+' else orf_end_gen - last_j
         else:
             stop_to_last_ej = "NA"
 
-        # --- coding / NMD flags ---
+        # coding / NMD flags
         coding_class = (
             "coding"
             if (has_orf and isinstance(coding_prob, (float, int)) and coding_prob >= coding_cutoff and orf_end_gen)
@@ -135,7 +135,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_path, output_path, coding_cut
     pd.DataFrame(summary).to_csv(output_path, sep="\t", index=False)
 
 
-# ------------------------------ CLI ------------------------------ #
+# CLI
 if __name__ == "__main__":
     import argparse
 

@@ -1,6 +1,6 @@
 # ORFannotate
 
-`ORFannotate` is a modular pipeline for predicting open reading frames (ORFs), annotating coding sequences (CDS) in GTF/GFF files, and summarizing transcript coding potential, including a simple heuristic for nonsense-mediated decay (NMD).For a comprehensive isoform-level quality assessment, consider using `SQANTI3` in parallel.
+`ORFannotate` is a modular pipeline for predicting open reading frames (ORFs), annotating coding sequences (CDS) in GTF/GFF files, and summarizing transcript coding potential, including a simple heuristic for nonsense-mediated decay (NMD). For a comprehensive isoform-level quality assessment, consider using `SQANTI3` in parallel.
 
 ---
 
@@ -126,3 +126,4 @@ This project is licensed under the GPLv3 License. See `LICENSE` for details.
 - [CPAT](https://github.com/urmi-21/orfipy)
 - [gffutils](https://github.com/daler/gffutils)
 - [Biopython](https://biopython.org/)
+- [gffread](https://github.com/gpertea/gffread)

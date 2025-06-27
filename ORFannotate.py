@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 import logging
 import gffutils
@@ -13,11 +14,9 @@ from orfannotate.orf_filter import get_best_orfs_by_cpat, build_cds_features
 from orfannotate.gtf_annotation import annotate_gtf_with_cds
 from orfannotate.summarise import generate_summary
 
-
+# Run CPAT to predict and score ORFs on transcript sequences
 def run_cpat(transcript_fasta, output_dir):
-    """
-    Run CPAT to predict and score ORFs on transcript sequences.
-    """
+    
     output_prefix = os.path.join(output_dir, "cpat")
     cpat_log_path = os.path.join(output_dir, "CPAT.log")
     hexamer_path = os.path.abspath("data/Human_Hexamer.tsv")
@@ -43,6 +42,18 @@ def run_cpat(transcript_fasta, output_dir):
             check=True
         )
 
+# Count unique transcript IDs in a GTF/GFF file
+def count_unique_transcripts(gtf_path):
+    
+    transcript_ids = set()
+    with open(gtf_path) as f:
+        for line in f:
+            if line.startswith("#") or "\ttranscript\t" not in line:
+                continue
+            match = re.search(r'transcript_id\s+"([^"]+)"', line)
+            if match:
+                transcript_ids.add(match.group(1))
+    return len(transcript_ids)
 
 def main():
 
@@ -64,7 +75,11 @@ def main():
     coding_cutoff = args.coding_cutoff
 
     os.makedirs(output_dir, exist_ok=True)
-
+    
+    # Count number of transcripts in GTF/GFF
+    num_transcripts = count_unique_transcripts(gtf_path)
+    print(f"[Info] ORFannotate will process {num_transcripts:,} unique transcripts")
+        
     print("[Step 1] Extracting transcript sequences...")
     transcript_fasta = os.path.join(output_dir, "transcripts.fa")
     extract_transcripts_from_gtf(gtf_path, genome_fasta, transcript_fasta)

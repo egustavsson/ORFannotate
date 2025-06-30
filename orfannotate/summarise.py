@@ -85,6 +85,8 @@ def generate_summary(best_orfs, transcript_fa, gtf_path, output_path, coding_cut
 
         chrom = tx.chrom
         strand = tx.strand
+        tx_start = tx.start
+        tx_end = tx.end
         gene_id = tx.attributes.get("gene_id", ["NA"])[0]
 
         # ORF fields
@@ -141,6 +143,8 @@ def generate_summary(best_orfs, transcript_fa, gtf_path, output_path, coding_cut
             "gene_id": gene_id,
             "chrom": chrom,
             "strand": strand,
+            "transcript_start": tx_start,
+            "transcript_end": tx_end,
             "has_orf": "TRUE" if has_orf else "FALSE",
             "orf_start": orf_start,
             "orf_end": orf_end_gen if orf_end_gen is not None else orf_end_tx,

@@ -10,11 +10,9 @@
 - Annotate GTF/GFF files with CDS features (only for coding transcripts)
 - Identify likely NMD targets (simple heuristic)
 - Generate a rich tab-separated summary of ORF and coding properties, including:
-  - Transcript and gene ID, strand, chromosome
   - ORF start/end, frame, coding probability
   - ORF/CDS length (nt/aa), junction count
   - Predicted NMD flag
-  - Nucleotide and protein sequence
   - `coding_class` classification (coding / noncoding)
   - Kozak sequence and Kozak sequence score (strong, moderate, weak)
 
@@ -107,6 +105,8 @@ The final output summary file `ORFannotate_summary.tsv` contains one row per tra
 | `gene_id`           | Associated gene ID |
 | `chrom`             | Chromosome |
 | `strand`            | `+` or `-` |
+| `transcript_start`  | transcript start position (genomic) |
+| `transcript_end`    | transcript end position (genomic) |
 | `has_orf`           | Whether a valid ORF was predicted |
 | `orf_start`         | ORF start position (transcript coordinates) |
 | `orf_end`           | ORF end position (genomic or transcript) |

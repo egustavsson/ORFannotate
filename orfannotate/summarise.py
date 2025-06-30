@@ -5,6 +5,7 @@ import json
 import tempfile
 from pathlib import Path
 from typing import List, Tuple
+from concurrent.futures import ProcessPoolExecutor
 
 import pandas as pd
 from Bio import SeqIO

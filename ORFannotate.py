@@ -6,6 +6,7 @@ import gffutils
 import argparse
 
 # Internal modules
+from orfannotate.orf_prediction import run_cpat
 from orfannotate.transcript_extraction import extract_transcripts_from_gtf
 from orfannotate.orf_filter import get_best_orfs_by_cpat, build_cds_features
 from orfannotate.gtf_annotation import annotate_gtf_with_cds
@@ -58,39 +59,6 @@ def setup_logging(output_dir):
 
     return logger
 
-# function to run CPAT
-def run_cpat(transcript_fasta, output_dir, logger):
-    output_prefix = os.path.join(output_dir, "cpat")
-    cpat_log_path = os.path.join(output_dir, "CPAT.log")
-    hexamer_path = os.path.abspath("data/Human_Hexamer.tsv")
-    logit_model_path = os.path.abspath("data/Human_logitModel.RData")
-
-    cpat_cmd = [
-        "cpat.py",
-        "-g", os.path.abspath(transcript_fasta),
-        "-x", hexamer_path,
-        "-d", logit_model_path,
-        "--top-orf=10",
-        "--min-orf=75",
-        "--log-file", cpat_log_path,
-        "-o", output_prefix
-    ]
-
-    run_log_path = os.path.join(output_dir, "CPAT_run_info.log")
-    with open(run_log_path, "w") as log_file:
-        logger.info("Running CPAT...")
-        subprocess.run(
-            cpat_cmd,
-            stdout=log_file,
-            stderr=subprocess.STDOUT,
-            check=True
-        )
-
-# Remove CPAT's cpat.r script as not needed
-    cpat_r = os.path.join(output_dir, "cpat.r")
-    if os.path.exists(cpat_r):
-        os.remove(cpat_r)
-
 def count_unique_transcripts(gtf_path):
     transcript_ids = set()
     with open(gtf_path) as f:
@@ -131,7 +99,9 @@ def main():
     extract_transcripts_from_gtf(gtf_path, genome_fasta, transcript_fasta)
 
     logger.info("Step 2: Predicting and scoring ORFs...")
-    run_cpat(transcript_fasta, output_dir, logger)
+    hexamer_path = os.path.abspath("data/Human_Hexamer.tsv")
+    logit_model_path = os.path.abspath("data/Human_logitModel.RData")
+    run_cpat(transcript_fasta, output_dir, hexamer_path, logit_model_path)
 
     logger.info("Step 3: Annotating GTF with CDS features...")
     db_path = os.path.join(output_dir, "gtf.db")
@@ -166,6 +136,13 @@ def main():
     logger.info("Step 5: Annotating and generating final summary TSV...")
     summary_tsv = os.path.join(output_dir, "ORFannotate_summary.tsv")
     generate_summary(best_orfs, transcript_fasta, annotated_gtf, summary_tsv, coding_cutoff=coding_cutoff)
+    
+    # Remove unwanted files
+    
+    # Remove CPAT's cpat.r script as not needed
+    cpat_r = os.path.join(output_dir, "cpat.r")
+    if os.path.exists(cpat_r):
+        os.remove(cpat_r)
     
     # Remove temporary gtf.db file
     if os.path.exists(db_path):

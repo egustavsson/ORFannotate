@@ -170,6 +170,7 @@ ORFannotate/
 ├── orfannotate/                  # Modular Python package
 │   ├── __init__.py
 |   ├── transcript_extraction.py  # Handles extraction of transcript sequences
+|   ├── orf_prediction.py         # Runs CPAT to predict ORFs
 │   ├── gtf_annotation.py         # GTF handling and CDS annotation
 │   ├── nmd.py                    # NMD prediction logic
 |   ├── kozak.py                  # Kozak sequence logic

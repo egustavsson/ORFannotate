@@ -16,6 +16,7 @@
   - Predicted NMD flag
   - Nucleotide and protein sequence
   - `coding_class` classification (coding / noncoding)
+  - Kozak sequence and Kozak sequence score (strong, moderate, weak)
 
 ---
 
@@ -96,6 +97,71 @@ After a successful run, the following files will be saved in <output_dir>:
 
 > Only transcripts classified as coding (by CPAT probability ≥ 0.364 by default) are annotated with CDS in the output GTF. You can override the cutoff using the --coding-cutoff argument.
 
+## Summary Output Fields
+
+The final output summary file `ORFannotate_summary.tsv` contains one row per transcript and includes:
+
+| Column              | Description |
+|---------------------|-------------|
+| `transcript_id`     | Transcript identifier |
+| `gene_id`           | Associated gene ID |
+| `chrom`             | Chromosome |
+| `strand`            | `+` or `-` |
+| `has_orf`           | Whether a valid ORF was predicted |
+| `orf_start`         | ORF start position (transcript coordinates) |
+| `orf_end`           | ORF end position (genomic or transcript) |
+| `orf_nt_len`        | ORF length in nucleotides |
+| `orf_aa_len`        | ORF length in amino acids |
+| `coding_prob`       | CPAT-predicted coding probability |
+| `coding_class`      | `coding` or `noncoding` based on CPAT cutoff |
+| `junction_count`    | Number of exon–exon junctions in the transcript |
+| `stop_to_last_EJ`   | Distance from stop codon to last exon junction (used in NMD rule) |
+| `NMD_sensitive`     | `TRUE` if transcript predicted to be degraded via NMD |
+| `cds_sequence`      | Predicted coding sequence (CDS) |
+| `protein_sequence`  | Translated protein sequence (from CDS) |
+| `kozak_strength`    | `strong`, `moderate`, or `weak` based on Kozak context |
+| `kozak_sequence`    | 10bp sequence surrounding start codon used to assess Kozak strength |
+
+---
+
+## Kozak Sequence Scoring
+
+The Kozak consensus sequence plays a role in translation initiation efficiency. For each predicted coding transcript, `ORFannotate` extracts a 10-nucleotide sequence surrounding the start codon (positions −6 to +4) and classifies the Kozak strength:
+
+**Consensus:**
+```
+gccRccAUGG
+      ^^^
+```
+
+- R = A or G
+- Position −3 (relative to start codon) is most critical
+- Position +4 (immediately after AUG) also contributes
+
+**Classification:**
+
+| Position −3 | Position +4 | Strength   |
+|-------------|-------------|------------|
+| A or G      | G           | **strong** |
+| A or G      | not G       | moderate   |
+| not A/G     | G           | moderate   |
+| not A/G     | not G       | weak       |
+
+If the sequence is too short to evaluate, strength is recorded as `"NA"`.
+
+---
+
+## NMD Prediction
+`ORFannotate` predicts nonsense-mediated decay (NMD) susceptibility using a simple and widely accepted heuristic:
+
+>A transcript is considered NMD-sensitive if the stop codon lies more than 50 nucleotides upstream of the last exon–exon junction.
+
+This conservative approach is fast and works well for general transcriptome-level analyses, but may not capture all context-dependent cases.
+
+The following output column is provided in the summary:
+
+NMD_sensitive: "TRUE" if the transcript meets the NMD rule, "FALSE" otherwise.
+
 ## Directory Structure
 ```
 ORFannotate/
@@ -112,12 +178,6 @@ ORFannotate/
 └── README.md
 
 ```
-
-## NMD Prediction
-Nonsense-mediated decay (NMD) is predicted using a simple rule:
-If the stop codon lies >50 nt upstream of the final exon–exon junction, the transcript is flagged as a likely NMD target.
-
-This conservative approach is fast and works well for general transcriptome-level analyses, but may not capture all context-dependent cases.
 
 ## License
 This project is licensed under the GPLv3 License. See `LICENSE` for details.

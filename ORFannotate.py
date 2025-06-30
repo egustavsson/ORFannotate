@@ -163,7 +163,7 @@ def main():
     annotate_gtf_with_cds(gtf_path, cds_features, annotated_gtf)
     logger.info(f"Annotated GTF written to {annotated_gtf}")
 
-    logger.info("Step 5: Generating final summary TSV...")
+    logger.info("Step 5: Annotating and generating final summary TSV...")
     summary_tsv = os.path.join(output_dir, "ORFannotate_summary.tsv")
     generate_summary(best_orfs, transcript_fasta, annotated_gtf, summary_tsv, coding_cutoff=coding_cutoff)
     

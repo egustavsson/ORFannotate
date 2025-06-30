@@ -23,6 +23,27 @@ def _load_transcript_sequences(transcript_fasta: Path):
 
 
 # Main routine
+
+# Classify the Kozak sequence around the start codon.
+def score_kozak(seq, orf_start):
+    if orf_start < 7 or orf_start + 3 >= len(seq):
+        return "weak", "NA"
+
+    context = seq[orf_start - 7 : orf_start + 3].upper()  # 6 upstream + start codon + 1
+    if len(context) < 10:
+        return "weak", context
+
+    base_at_minus3 = context[3]
+    base_at_plus4 = context[9]
+
+    if base_at_minus3 in ("A", "G") and base_at_plus4 == "G":
+        return "strong", context
+    elif base_at_minus3 in ("A", "G") or base_at_plus4 == "G":
+        return "moderate", context
+    else:
+        return "weak", context
+
+# Summary function
 def generate_summary(best_orfs, transcript_fa, gtf_path, output_path, coding_cutoff=0.364):
 
     # build a temp gffutils DB that links CDS to transcript_id
@@ -75,6 +96,8 @@ def generate_summary(best_orfs, transcript_fa, gtf_path, output_path, coding_cut
             nt_seq = str(transcript_seqs[tid].seq[orf_start - 1 : orf_end_tx])
             aa_seq = str(transcript_seqs[tid].seq[orf_start - 1 : orf_end_tx].translate(to_stop=True))
             orf_nt_len = orf_end_tx - orf_start + 1
+            full_seq = str(transcript_seqs[tid].seq)
+            kozak_strength, kozak_seq = score_kozak(full_seq, orf_start)
             orf_aa_len = len(aa_seq)
         else:
             orf_start = orf_end_tx = frame = "NA"
@@ -130,6 +153,8 @@ def generate_summary(best_orfs, transcript_fa, gtf_path, output_path, coding_cut
             "NMD_sensitive": nmd_flag,
             "cds_sequence": nt_seq if coding_class == "coding" else "NA",
             "protein_sequence": aa_seq if coding_class == "coding" else "NA",
+            "kozak_strength": kozak_strength if coding_class == "coding" else "NA",
+            "kozak_sequence": kozak_seq if coding_class == "coding" else "NA",
         })
 
     pd.DataFrame(summary).to_csv(output_path, sep="\t", index=False)

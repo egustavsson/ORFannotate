@@ -13,7 +13,6 @@ from orfannotate.summarise import generate_summary
 
 # logging info. Only high-level written to terminal
 class SelectiveConsoleFilter(logging.Filter):
-    """Filter console messages to show only high-level progress updates."""
     ALLOWED_TERMS = [
         "Starting ORFannotate",
         "Found",
@@ -87,6 +86,10 @@ def run_cpat(transcript_fasta, output_dir, logger):
             check=True
         )
 
+# Remove CPAT's cpat.r script as not needed
+    cpat_r = os.path.join(output_dir, "cpat.r")
+    if os.path.exists(cpat_r):
+        os.remove(cpat_r)
 
 def count_unique_transcripts(gtf_path):
     transcript_ids = set()
@@ -163,6 +166,10 @@ def main():
     logger.info("Step 5: Generating final summary TSV...")
     summary_tsv = os.path.join(output_dir, "ORFannotate_summary.tsv")
     generate_summary(best_orfs, transcript_fasta, annotated_gtf, summary_tsv, coding_cutoff=coding_cutoff)
+    
+    # Remove temporary gtf.db file
+    if os.path.exists(db_path):
+        os.remove(db_path)
 
     logger.info(f"Summary written to {summary_tsv}")
     logger.info("ORFannotate completed successfully.")

@@ -172,6 +172,7 @@ ORFannotate/
 |   ├── transcript_extraction.py  # Handles extraction of transcript sequences
 │   ├── gtf_annotation.py         # GTF handling and CDS annotation
 │   ├── nmd.py                    # NMD prediction logic
+|   ├── kozak.py                  # Kozak sequence logic
 │   ├── orf_filter.py             # CPAT result parsing and filtering
 │   ├── summarise.py              # Final summary writer
 ├── LICENSE

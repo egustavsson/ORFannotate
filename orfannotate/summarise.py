@@ -11,6 +11,7 @@ from Bio import SeqIO
 import gffutils
 
 from orfannotate.nmd import predict_nmd
+from orfannotate.kozak import score_kozak
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(format="%(levelname)s:%(name)s:%(message)s", level=logging.INFO)
@@ -23,25 +24,6 @@ def _load_transcript_sequences(transcript_fasta: Path):
 
 
 # Main routine
-
-# Classify the Kozak sequence around the start codon.
-def score_kozak(seq, orf_start):
-    if orf_start < 7 or orf_start + 3 >= len(seq):
-        return "weak", "NA"
-
-    context = seq[orf_start - 7 : orf_start + 3].upper()  # 6 upstream + start codon + 1
-    if len(context) < 10:
-        return "weak", context
-
-    base_at_minus3 = context[3]
-    base_at_plus4 = context[9]
-
-    if base_at_minus3 in ("A", "G") and base_at_plus4 == "G":
-        return "strong", context
-    elif base_at_minus3 in ("A", "G") or base_at_plus4 == "G":
-        return "moderate", context
-    else:
-        return "weak", context
 
 # Summary function
 def generate_summary(best_orfs, transcript_fa, gtf_path, output_path, coding_cutoff=0.364):

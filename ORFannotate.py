@@ -1,6 +1,5 @@
 import os
 import re
-import subprocess
 import logging
 import gffutils
 import argparse
@@ -22,6 +21,7 @@ class SelectiveConsoleFilter(logging.Filter):
         "Step 3:",
         "Step 4:",
         "Step 5:",
+        "Step 6:",
         "ORFannotate completed"
     ]
 
@@ -93,19 +93,11 @@ def main():
     logger.info("Starting ORFannotate")
     num_transcripts = count_unique_transcripts(gtf_path)
     logger.info(f"Found {num_transcripts:,} unique transcripts in the GTF")
-
-    logger.info("Step 1: Extracting transcript sequences...")
-    transcript_fasta = os.path.join(output_dir, "transcripts.fa")
-    extract_transcripts_from_gtf(gtf_path, genome_fasta, transcript_fasta)
-
-    logger.info("Step 2: Predicting and scoring ORFs...")
-    hexamer_path = os.path.abspath("data/Human_Hexamer.tsv")
-    logit_model_path = os.path.abspath("data/Human_logitModel.RData")
-    run_cpat(transcript_fasta, output_dir, hexamer_path, logit_model_path)
-
-    logger.info("Step 3: Annotating GTF with CDS features...")
+    
+    # Building the GTF database once that will be used throughout
+    logger.info("Step 1: Building GTF database...")
     db_path = os.path.join(output_dir, "gtf.db")
-    gtf_db = gffutils.create_db(
+    gffutils.create_db(
         gtf_path,
         dbfn=db_path,
         force=True,
@@ -113,38 +105,66 @@ def main():
         disable_infer_transcripts=True,
         disable_infer_genes=True,
         merge_strategy="create_unique",
-        sort_attribute_values=True
-    )
-
-    logger.info("Step 4: Parsing ORF results...")
+        sort_attribute_values=True,
+        pragmas={"journal_mode": "OFF",
+                 "synchronous": "OFF",
+                 "temp_store": "MEMORY"},
+        id_spec={"transcript": "transcript_id",
+                 "exon": "transcript_id",
+                 "CDS": "transcript_id"}
+        )
+    
+    # open it once and pass the handle
+    gtf_db = gffutils.FeatureDB(db_path)
+    
+    # extract transcript FASTA sequences using the db
+    logger.info("Step 2: Extracting transcript sequences...")
+    transcript_fasta = os.path.join(output_dir, "transcripts.fa")
+    extract_transcripts_from_gtf(gtf_db, genome_fasta, transcript_fasta)
+    
+    # ORF prediction using CPAT
+    logger.info("Step 3: Predicting and scoring ORFs...")
+    hexamer_path = os.path.abspath("data/Human_Hexamer.tsv")
+    logit_model_path = os.path.abspath("data/Human_logitModel.RData")
+    run_cpat(transcript_fasta, output_dir, hexamer_path, logit_model_path)
+    
+    # parse ORF result to select the best per transcript
+    logger.info("Step 4: Parsing ORF results..." )
     cpat_results = os.path.join(output_dir, "cpat.ORF_prob.best.tsv")
     debug_output = os.path.join(output_dir, "cpat_debug.tsv")
     best_orfs = get_best_orfs_by_cpat(cpat_results, debug_output_path=debug_output)
-
+    
     coding_orfs = {
-        tid: info for tid, info in best_orfs.items()
-        if info["coding_prob"] >= coding_cutoff
+        tid: info for tid, info in best_orfs.items() if info["coding_prob"] >= coding_cutoff
     }
-
-    logger.info(f"Selected {len(coding_orfs):,} transcripts classified as coding (cutoff = {coding_cutoff})")
+    logger.info(
+        f"Selected {len(coding_orfs):,} transcripts classified as coding (cutoff = {coding_cutoff})",
+    )
+    
+    # add CDS features to GTF
+    logger.info("Step 5: Annotating GTF with CDS features...")
     cds_features = build_cds_features(gtf_db, coding_orfs)
-
     annotated_gtf = os.path.join(output_dir, "ORFannotate_annotated.gtf")
     annotate_gtf_with_cds(gtf_path, cds_features, annotated_gtf)
     logger.info(f"Annotated GTF written to {annotated_gtf}")
-
-    logger.info("Step 5: Annotating and generating final summary TSV...")
+    
+    # generate summary and write table
+    logger.info("Step 6: Annotating and generating final summary TSV...")
     summary_tsv = os.path.join(output_dir, "ORFannotate_summary.tsv")
-    generate_summary(best_orfs, transcript_fasta, annotated_gtf, summary_tsv, coding_cutoff=coding_cutoff)
+    generate_summary(
+        best_orfs,
+        transcript_fasta,
+        gtf_db,  # pass the live DB handle – no redundant rebuild
+        summary_tsv,
+        coding_cutoff=coding_cutoff,
+    )
+
+    # The SQLite DB is no longer needed after the summary
+    try:
+        gtf_db.conn.close()
+    except AttributeError:
+        pass
     
-    # Remove unwanted files
-    
-    # Remove CPAT's cpat.r script as not needed
-    cpat_r = os.path.join(output_dir, "cpat.r")
-    if os.path.exists(cpat_r):
-        os.remove(cpat_r)
-    
-    # Remove temporary gtf.db file
     if os.path.exists(db_path):
         os.remove(db_path)
 

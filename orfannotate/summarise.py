@@ -18,34 +18,46 @@ logging.basicConfig(format="%(levelname)s:%(name)s:%(message)s", level=logging.I
 
 
 # Help functions
+
 def _load_transcript_sequences(transcript_fasta: Path):
-    
+
     return SeqIO.to_dict(SeqIO.parse(str(transcript_fasta), "fasta"))
 
 
 # Main routine
 
 # Summary function
-def generate_summary(best_orfs, transcript_fa, gtf_path, output_path, coding_cutoff=0.364):
+def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, coding_cutoff=0.364):
 
-    # build a temp gffutils DB that links CDS to transcript_id
-    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmpdb:
-        gffutils.create_db(
-            str(gtf_path),
-            dbfn=tmpdb.name,
-            force=True,
-            keep_order=True,
-            disable_infer_transcripts=True,
-            disable_infer_genes=True,
-            merge_strategy="create_unique",
-            sort_attribute_values=True,
-            id_spec={
-                "transcript": "transcript_id",
-                "exon": "transcript_id",
-                "CDS": "transcript_id",
-            },
-        )
-        db = gffutils.FeatureDB(tmpdb.name)
+    if isinstance(gtf_db_or_path, gffutils.FeatureDB):
+        db = gtf_db_or_path
+    else:
+        gtf_db_or_path = Path(gtf_db_or_path)
+        if gtf_db_or_path.suffix == ".db" and gtf_db_or_path.exists():
+            db = gffutils.FeatureDB(str(gtf_db_or_path))
+        else:
+            with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmpdb:
+                gffutils.create_db(
+                    str(gtf_db_or_path),
+                    dbfn=tmpdb.name,
+                    force=True,
+                    keep_order=True,
+                    disable_infer_transcripts=True,
+                    disable_infer_genes=True,
+                    merge_strategy="create_unique",
+                    sort_attribute_values=True,
+                    pragmas={
+                        "journal_mode": "OFF",
+                        "synchronous": "OFF",
+                        "temp_store": "MEMORY",
+                    },
+                    id_spec={
+                        "transcript": "transcript_id",
+                        "exon": "transcript_id",
+                        "CDS": "transcript_id",
+                    },
+                )
+                db = gffutils.FeatureDB(tmpdb.name)
 
     transcript_seqs = _load_transcript_sequences(Path(transcript_fa))
     summary = []

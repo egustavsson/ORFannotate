@@ -81,16 +81,22 @@ python ORFannotate.py --gtf annotations.gtf --fa genome.fa --outdir output/
 python ORFannotate.py transcripts.gtf genome.fa output/
 ```
 
-After a successful run, the following files will be saved in <output_dir>:
+After a successful run, the following files will be saved in `<output_dir>`:
 
-| **File**                      | **Description**                                 |
-| ----------------------------- | ----------------------------------------------- |
-| `transcripts.fa`              | FASTA file of transcript sequences              |
-| `cpat.ORF_prob.best.tsv`      | CPAT output for the best ORF per transcript     |
-| `cpat_debug.tsv`              | (Optional) full CPAT-scored ORFs                |
-| `ORFannotate_annotated.gtf`   | GTF with CDS features added to transcripts      |
-| `ORFannotate_summary.tsv`     | Final summary table with ORF/NMD annotations    |
-| `CPAT_run_info.log`           | CPAT runtime log (captured in output directory) |
+| **File**                      | **Description**                                       |
+|-------------------------------|-------------------------------------------------------|
+| `transcripts.fa`              | FASTA file of full transcript sequences               |
+| `CPAT/cpat.ORF_prob.best.tsv` | CPAT output for the best ORF per transcript           |
+| `CPAT/cpat_debug.tsv`         | Full CPAT-scored ORFs (optional debug output)         |
+| `CPAT/CPAT_run_info.log`      | Full CPAT command log                                 |
+| `CPAT/CPAT.log`               | CPAT runtime messages                                 |
+| `cds.fa`                      | FASTA of predicted coding DNA sequences (CDS)         |
+| `protein.fa`                  | FASTA of predicted translated protein sequences       |
+| `utr5.fa`                     | FASTA of 5′ UTR sequences for coding transcripts      |
+| `utr3.fa`                     | FASTA of 3′ UTR sequences for coding transcripts      |
+| `ORFannotate_annotated.gtf`   | GTF with predicted CDS features added to transcripts  |
+| `ORFannotate_summary.tsv`     | Final summary table with ORF, CDS, NMD, UTR features  |
+| `ORFannotate.log`             | General pipeline log                                  |
 
 
 > Only transcripts classified as coding (by CPAT probability ≥ 0.364 by default) are annotated with CDS in the output GTF. You can override the cutoff using the --coding-cutoff argument.

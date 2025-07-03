@@ -131,14 +131,22 @@ def main():
 
     # ORF prediction using CPAT
     logger.info("Step 3: Predicting and scoring ORFs...")
+    
+    # use pre existing models from CPAT
     hexamer_path = os.path.abspath("data/Human_Hexamer.tsv")
     logit_model_path = os.path.abspath("data/Human_logitModel.RData")
-    run_cpat(transcript_fasta, output_dir, hexamer_path, logit_model_path)
+    
+    # direct output to CPAT directory
+    cpat_dir = os.path.join(output_dir, "CPAT")
+    os.makedirs(cpat_dir, exist_ok=True)
+    
+    # run function
+    run_cpat(transcript_fasta, cpat_dir, hexamer_path, logit_model_path)
 
     # parse ORF result to select the best per transcript
     logger.info("Step 4: Parsing ORF results..." )
-    cpat_results = os.path.join(output_dir, "cpat.ORF_prob.best.tsv")
-    debug_output = os.path.join(output_dir, "cpat_debug.tsv")
+    cpat_results = os.path.join(cpat_dir, "cpat.ORF_prob.best.tsv")
+    debug_output = os.path.join(cpat_dir, "cpat_debug.tsv")
     best_orfs = get_best_orfs_by_cpat(cpat_results, debug_output_path=debug_output)
 
     coding_orfs = {

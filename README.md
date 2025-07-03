@@ -9,12 +9,13 @@
 - Predict and score ORFs using [`CPAT`](https://cpat.readthedocs.io/en/latest/#introduction)
 - Annotate GTF/GFF files with CDS features (only for coding transcripts)
 - Identify likely NMD targets (simple heuristic)
-- Generate a rich tab-separated summary of ORF and coding properties, including:
-  - ORF start/end, frame, coding probability
-  - ORF/CDS length (nt/aa), junction count
-  - Predicted NMD flag
-  - `coding_class` classification (coding / noncoding)
-  - Kozak sequence and Kozak sequence score (strong, moderate, weak)
+- Generate a clean, tab-separated summary of ORF and coding properties, including:
+  - ORF/CDS length (nt/aa), coding probability
+  - Kozak context and strength classification
+  - Exon junction structure
+  - UTR lengths
+  - NMD prediction
+- Generate fasta files with transcript, CDS, UTR (5'/3') and protein sequences
 
 ---
 
@@ -44,9 +45,8 @@ The pipeline requires:
 | GTF/GFF file   | `.gtf` or `.gff` | Must contain `transcript` and `exon` features. Transcript IDs should be unique and consistent. |
 | Genome FASTA   | `.fa`, `.fasta` | Reference genome matching the GTF. Must have transcript chromosome names matching those in the annotation. |
 
-> Both `.gtf` and `.gff` formats are supported as long as feature labels are compatible (`transcript`, `exon`, etc.).
-
-Ensure that your GTF includes transcript-level features (not just exons), or the pipeline may skip some records or produce incomplete outputs.
+> [!WARNING]
+> Ensure that your GTF includes transcript-level features (not just exons), or the pipeline may skip some records or produce incomplete outputs.
 
 ---
 
@@ -83,23 +83,24 @@ python ORFannotate.py transcripts.gtf genome.fa output/
 
 After a successful run, the following files will be saved in `<output_dir>`:
 
-| **File**                      | **Description**                                       |
-|-------------------------------|-------------------------------------------------------|
-| `transcripts.fa`              | FASTA file of full transcript sequences               |
-| `CPAT/cpat.ORF_prob.best.tsv` | CPAT output for the best ORF per transcript           |
-| `CPAT/cpat_debug.tsv`         | Full CPAT-scored ORFs (optional debug output)         |
-| `CPAT/CPAT_run_info.log`      | Full CPAT command log                                 |
-| `CPAT/CPAT.log`               | CPAT runtime messages                                 |
-| `cds.fa`                      | FASTA of predicted coding DNA sequences (CDS)         |
-| `protein.fa`                  | FASTA of predicted translated protein sequences       |
-| `utr5.fa`                     | FASTA of 5′ UTR sequences for coding transcripts      |
-| `utr3.fa`                     | FASTA of 3′ UTR sequences for coding transcripts      |
-| `ORFannotate_annotated.gtf`   | GTF with predicted CDS features added to transcripts  |
-| `ORFannotate_summary.tsv`     | Final summary table with ORF, CDS, NMD, UTR features  |
-| `ORFannotate.log`             | General pipeline log                                  |
+| **File**                      | **Description**                                                  |
+|-------------------------------|------------------------------------------------------------------|
+| `transcripts.fa`              | FASTA file of full transcript sequences                          |
+| `CPAT/cpat.ORF_prob.best.tsv` | CPAT output for the best ORF per transcript                      |
+| `CPAT/cpat_debug.tsv`         | Full CPAT-scored ORFs (optional debug output)                    |
+| `CPAT/CPAT_run_info.log`      | Full CPAT command log                                            |
+| `CPAT/CPAT.log`               | CPAT runtime messages                                            |
+| `cds.fa`                      | FASTA of predicted coding sequences for coding transcripts       |
+| `protein.fa`                  | FASTA of protein sequences translated from predicted CDS         |
+| `utr5.fa`                     | FASTA of 5′ UTRs for coding transcripts (if present)             |
+| `utr3.fa`                     | FASTA of 3′ UTRs for coding transcripts (if present)             |
+| `ORFannotate_annotated.gtf`   | GTF with predicted CDS features added to coding transcripts      |
+| `ORFannotate_summary.tsv`     | Final summary table with ORF, CDS, UTR, NMD, and other features  |
+| `ORFannotate.log`             | General pipeline log                                             |
 
 
-> Only transcripts classified as coding (by CPAT probability ≥ 0.364 by default) are annotated with CDS in the output GTF. You can override the cutoff using the --coding-cutoff argument.
+> FASTA files are only generated for transcripts classified as coding. UTRs are only included if valid regions exist upstream or downstream of the predicted ORF.
+
 
 ## Summary Output Fields
 
@@ -109,24 +110,22 @@ The final output summary file `ORFannotate_summary.tsv` contains one row per tra
 |---------------------|-------------|
 | `transcript_id`     | Transcript identifier |
 | `gene_id`           | Associated gene ID |
-| `chrom`             | Chromosome |
+| `chrom`             | Chromosome name |
 | `strand`            | `+` or `-` |
-| `transcript_start`  | transcript start position (genomic) |
-| `transcript_end`    | transcript end position (genomic) |
-| `has_orf`           | Whether a valid ORF was predicted |
-| `orf_start`         | ORF start position (transcript coordinates) |
-| `orf_end`           | ORF end position (genomic or transcript) |
-| `orf_nt_len`        | ORF length in nucleotides |
-| `orf_aa_len`        | ORF length in amino acids |
+| `transcript_start`  | Transcript start position (genomic) |
+| `transcript_end`    | Transcript end position (genomic) |
+| `has_orf`           | `TRUE` if an ORF was predicted, `FALSE` otherwise |
+| `orf_nt_len`        | ORF length in nucleotides (only if coding) |
+| `orf_aa_len`        | ORF length in amino acids (only if coding) |
 | `coding_prob`       | CPAT-predicted coding probability |
-| `coding_class`      | `coding` or `noncoding` based on CPAT cutoff |
-| `junction_count`    | Number of exon–exon junctions in the transcript |
-| `stop_to_last_EJ`   | Distance from stop codon to last exon junction (used in NMD rule) |
-| `NMD_sensitive`     | `TRUE` if transcript predicted to be degraded via NMD |
-| `cds_sequence`      | Predicted coding sequence (CDS) |
-| `protein_sequence`  | Translated protein sequence (from CDS) |
-| `kozak_strength`    | `strong`, `moderate`, or `weak` based on Kozak context |
-| `kozak_sequence`    | 10bp sequence surrounding start codon used to assess Kozak strength |
+| `coding_class`      | `coding` or `noncoding` based on cutoff |
+| `junction_count`    | Number of exon–exon junctions |
+| `stop_to_last_EJ`   | Distance from stop codon to last exon junction |
+| `NMD_sensitive`     | `TRUE` if predicted to undergo NMD, else `FALSE` |
+| `kozak_strength`    | `strong`, `moderate`, `weak`, or `NA` (only if coding) |
+| `kozak_sequence`    | Kozak sequence around start codon (if available) |
+| `utr5_nt_len`       | 5′ UTR length in nucleotides (only if coding) |
+| `utr3_nt_len`       | 3′ UTR length in nucleotides (only if coding) |
 
 ---
 
@@ -169,22 +168,22 @@ The following output column is provided in the summary:
 NMD_sensitive: "TRUE" if the transcript meets the NMD rule, "FALSE" otherwise.
 
 ## Directory Structure
+
 ```
 ORFannotate/
 ├── ORFannotate.py                # Main script (entry point)
 ├── ORFannotate.conda_env.yml     # Conda environment file
 ├── orfannotate/                  # Modular Python package
 │   ├── __init__.py
-|   ├── transcript_extraction.py  # Handles extraction of transcript sequences
-|   ├── orf_prediction.py         # Runs CPAT to predict ORFs
-│   ├── gtf_annotation.py         # GTF handling and CDS annotation
-│   ├── nmd.py                    # NMD prediction logic
-|   ├── kozak.py                  # Kozak sequence logic
-│   ├── orf_filter.py             # CPAT result parsing and filtering
-│   ├── summarise.py              # Final summary writer
+│   ├── transcript_extraction.py
+│   ├── orf_prediction.py
+│   ├── gtf_annotation.py
+│   ├── nmd.py
+│   ├── kozak.py
+│   ├── orf_filter.py
+│   ├── summarise.py
 ├── LICENSE
 └── README.md
-
 ```
 
 ## License

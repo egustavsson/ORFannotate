@@ -158,6 +158,9 @@ def main():
     annotate_gtf_with_cds(gtf_path, cds_features, annotated_gtf)
     logger.info(f"Annotated GTF written to {annotated_gtf}")
 
+    # generate summary and write table
+    logger.info("Step 6: Annotating transcripts and generating final summary TSV...")
+    
     # build a lightweight DB from the annotated GTF so that generate_summary() sees the newly added CDS.
     logger.info("Building database with CDS features for summary generation")
     annotated_db = gffutils.create_db(
@@ -176,9 +179,8 @@ def main():
                  "exon": "transcript_id",
                  "CDS": "transcript_id"},
     )
-
-    # generate summary and write table
-    logger.info("Step 6: Annotating and generating final summary TSV...")
+    
+    # generate final summary using the the DB with CDS information
     summary_tsv = os.path.join(output_dir, "ORFannotate_summary.tsv")
     generate_summary(
         best_orfs,

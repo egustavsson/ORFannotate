@@ -1,34 +1,28 @@
 from __future__ import annotations
-
 import logging
 import json
 import tempfile
 from pathlib import Path
 from typing import List, Tuple
-
 import pandas as pd
 from Bio import SeqIO
 import gffutils
 
+# Internal modules
 from orfannotate.nmd import predict_nmd
 from orfannotate.kozak import score_kozak
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(format="%(levelname)s:%(name)s:%(message)s", level=logging.INFO)
 
-
 # Help functions
 
 def _load_transcript_sequences(transcript_fasta: Path):
-
     return SeqIO.to_dict(SeqIO.parse(str(transcript_fasta), "fasta"))
 
+# Main function
 
-# Main routine
-
-# Summary function
 def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, coding_cutoff=0.364):
-
     if isinstance(gtf_db_or_path, gffutils.FeatureDB):
         db = gtf_db_or_path
     else:
@@ -62,7 +56,6 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
     transcript_seqs = _load_transcript_sequences(Path(transcript_fa))
     summary = []
 
-    # iterate over EVERY transcript that has a sequence
     all_tx_ids = {t.id for t in db.features_of_type("transcript")}
     all_tx_ids &= set(transcript_seqs.keys())
 
@@ -83,14 +76,13 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
         tx_end = tx.end
         gene_id = tx.attributes.get("gene_id", ["NA"])[0]
 
-        # ORF fields
         if has_orf:
             orf_start = orf_data["start"]
             orf_end_tx = orf_data["end"]
             frame = orf_data["frame"]
             coding_prob = orf_data["coding_prob"]
-            nt_seq = str(transcript_seqs[tid].seq[orf_start - 1 : orf_end_tx])
-            aa_seq = str(transcript_seqs[tid].seq[orf_start - 1 : orf_end_tx].translate(to_stop=True))
+            nt_seq = str(transcript_seqs[tid].seq[orf_start - 1:orf_end_tx])
+            aa_seq = str(transcript_seqs[tid].seq[orf_start - 1:orf_end_tx].translate(to_stop=True))
             orf_nt_len = orf_end_tx - orf_start + 1
             full_seq = str(transcript_seqs[tid].seq)
             kozak_strength, kozak_seq = score_kozak(full_seq, orf_start)
@@ -101,13 +93,14 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
             nt_seq = aa_seq = "NA"
             orf_nt_len = orf_aa_len = "NA"
 
-        # CDS stop in genomic coords
         cds_feats = list(db.children(tx, featuretype="CDS", order_by="start"))
         orf_end_gen = None
         if cds_feats:
-            orf_end_gen = max(f.end for f in cds_feats) if strand == "+" else min(f.start for f in cds_feats)
+            if strand == "+":
+                orf_end_gen = max(f.end for f in cds_feats)
+            else:
+                orf_end_gen = min(f.start for f in cds_feats)
 
-        # junction list
         exons = list(db.children(tx, featuretype="exon", order_by="start"))
         if strand == '-':
             exons = exons[::-1]
@@ -117,14 +110,12 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
         ]
         junction_count = len(junctions)
 
-        # distance stop → last junction
         if has_orf and orf_end_gen is not None and junctions:
             last_j = junctions[-1][0] if strand == '+' else junctions[0][1]
             stop_to_last_ej = last_j - orf_end_gen if strand == '+' else orf_end_gen - last_j
         else:
             stop_to_last_ej = "NA"
 
-        # coding / NMD flags
         coding_class = (
             "coding"
             if (has_orf and isinstance(coding_prob, (float, int)) and coding_prob >= coding_cutoff and orf_end_gen)
@@ -141,7 +132,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
             "transcript_end": tx_end,
             "has_orf": "TRUE" if has_orf else "FALSE",
             "orf_start": orf_start,
-            "orf_end": orf_end_gen if orf_end_gen is not None else orf_end_tx,
+            "orf_end": orf_end_tx,
             "orf_nt_len": orf_nt_len,
             "orf_aa_len": orf_aa_len,
             "coding_prob": coding_prob,
@@ -158,7 +149,6 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
     pd.DataFrame(summary).to_csv(output_path, sep="\t", index=False)
 
 
-# CLI
 if __name__ == "__main__":
     import argparse
 

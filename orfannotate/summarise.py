@@ -66,7 +66,12 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
     all_tx_ids = {t.id for t in db.features_of_type("transcript")}
     all_tx_ids &= set(transcript_seqs.keys())
 
-    for tid in sorted(all_tx_ids):
+    children = db.children
+
+    for i, tid in enumerate(sorted(all_tx_ids)):
+        if i % 1000 == 0 and i > 0:
+            LOGGER.info(f"Processed {i:,} transcripts...")
+
         has_orf = tid in best_orfs
         orf_data = best_orfs.get(tid, None)
 
@@ -92,7 +97,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
             orf_start = orf_end_tx = frame = "NA"
             coding_prob = "NA"
 
-        cds_feats = list(db.children(tx, featuretype="CDS", order_by="start"))
+        cds_feats = list(children(tx, featuretype="CDS", order_by="start"))
         orf_end_gen = None
         if cds_feats:
             if strand == "+":
@@ -106,8 +111,10 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
             else "noncoding"
         )
 
+        full_seq = str(transcript_seqs[tid].seq)
+        seq_len = len(full_seq)
+
         if coding_class == "coding":
-            full_seq = str(transcript_seqs[tid].seq)
             nt_seq = full_seq[orf_start - 1:orf_end_tx]
             aa_seq = str(Seq(nt_seq).translate(to_stop=True))
             orf_nt_len = orf_end_tx - orf_start + 1
@@ -118,7 +125,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
             orf_nt_len = orf_aa_len = "NA"
             kozak_strength = kozak_seq = "NA"
 
-        exons = list(db.children(tx, featuretype="exon", order_by="start"))
+        exons = list(children(tx, featuretype="exon", order_by="start"))
         if strand == '-':
             exons = exons[::-1]
 
@@ -141,7 +148,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
             if orf_start > 1:
                 utr5_seq = full_seq[:orf_start - 1]
                 utr5_len = len(utr5_seq)
-            if orf_end_tx < len(full_seq):
+            if orf_end_tx < seq_len:
                 utr3_seq = full_seq[orf_end_tx:]
                 utr3_len = len(utr3_seq)
 

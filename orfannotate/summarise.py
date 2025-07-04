@@ -117,15 +117,6 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
             nt_seq = aa_seq = "NA"
             orf_nt_len = orf_aa_len = "NA"
             kozak_strength = kozak_seq = "NA"
-            kozak_strength = kozak_seq = "NA"
-
-        cds_feats = list(db.children(tx, featuretype="CDS", order_by="start"))
-        orf_end_gen = None
-        if cds_feats:
-            if strand == "+":
-                orf_end_gen = max(f.end for f in cds_feats)
-            else:
-                orf_end_gen = min(f.start for f in cds_feats)
 
         exons = list(db.children(tx, featuretype="exon", order_by="start"))
         if strand == '-':
@@ -142,11 +133,6 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
         else:
             stop_to_last_ej = "NA"
 
-        coding_class = (
-            "coding"
-            if (has_orf and isinstance(coding_prob, (float, int)) and coding_prob >= coding_cutoff and orf_end_gen)
-            else "noncoding"
-        )
         nmd_flag = predict_nmd(orf_end_gen, junctions, strand) if coding_class == "coding" else "FALSE"
 
         utr5_seq = utr3_seq = "NA"
@@ -163,9 +149,9 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
             cds_records.append(SeqRecord(Seq(nt_seq), id=tid, description=desc))
             protein_records.append(SeqRecord(Seq(aa_seq), id=tid, description=desc))
 
-            if utr5_seq != "NA":
+            if utr5_len != "NA":
                 utr5_records.append(SeqRecord(Seq(utr5_seq), id=tid, description=desc))
-            if utr3_seq != "NA":
+            if utr3_len != "NA":
                 utr3_records.append(SeqRecord(Seq(utr3_seq), id=tid, description=desc))
 
         summary.append({
@@ -178,6 +164,8 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
             "has_orf": "TRUE" if has_orf else "FALSE",
             "orf_nt_len": orf_nt_len,
             "orf_aa_len": orf_aa_len,
+            "utr5_nt_len": utr5_len,
+            "utr3_nt_len": utr3_len,
             "coding_prob": coding_prob,
             "coding_class": coding_class,
             "junction_count": junction_count,
@@ -185,8 +173,6 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
             "NMD_sensitive": nmd_flag,
             "kozak_strength": kozak_strength,
             "kozak_sequence": kozak_seq,
-            "utr5_nt_len": utr5_len,
-            "utr3_nt_len": utr3_len,
         })
 
     pd.DataFrame(summary).to_csv(output_path, sep="\t", index=False)

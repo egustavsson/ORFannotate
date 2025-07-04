@@ -8,6 +8,7 @@ import pandas as pd
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
+from tqdm import tqdm
 import gffutils
 
 # Internal modules
@@ -68,9 +69,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
 
     children = db.children
 
-    for i, tid in enumerate(sorted(all_tx_ids)):
-        if i % 1000 == 0 and i > 0:
-            LOGGER.info(f"Processed {i:,} transcripts...")
+    for tid in tqdm(sorted(all_tx_ids), desc="Processing transcripts"):
 
         has_orf = tid in best_orfs
         orf_data = best_orfs.get(tid, None)

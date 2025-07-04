@@ -23,6 +23,7 @@ class SelectiveConsoleFilter(logging.Filter):
         "Step 4:",
         "Step 5:",
         "Step 6:",
+        "Processed",
         "ORFannotate completed"
     ]
 

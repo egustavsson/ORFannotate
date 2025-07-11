@@ -73,6 +73,16 @@ def _count_unique_transcripts(gtf_path):
 def _keep_tx_and_exons(feat):
     return feat if feat.featuretype in {"transcript", "exon"} else False
 
+def _validate_inputs(gtf_path, genome_fasta):
+    if not os.path.exists(gtf_path):
+        raise FileNotFoundError(f"GTF file not found: {gtf_path}")
+    if not os.path.isfile(gtf_path):
+        raise ValueError(f"GTF path is not a file: {gtf_path}")
+    if not os.path.exists(genome_fasta):
+        raise FileNotFoundError(f"FASTA file not found: {genome_fasta}")
+    if not os.path.isfile(genome_fasta):
+        raise ValueError(f"FASTA path is not a file: {genome_fasta}")
+
 def main():
     parser = argparse.ArgumentParser(
         description="ORFannotate – predict coding ORFs, annotate GTF, and generate summaries."
@@ -90,6 +100,8 @@ def main():
     genome_fasta = args.fa
     output_dir = args.outdir
     species = args.species.lower()
+    
+    _validate_inputs(gtf_path, genome_fasta)
 
     os.makedirs(output_dir, exist_ok=True)
     logger = _setup_logging(output_dir)

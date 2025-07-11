@@ -141,6 +141,7 @@ def main():
         "zebrafish": 0.38
     }
     coding_cutoff = args.coding_cutoff if args.coding_cutoff is not None else default_cutoffs[species]
+    logger.info(f"Using coding cutoff: {coding_cutoff}")
 
     cpat_dir = os.path.join(output_dir, "CPAT")
     os.makedirs(cpat_dir, exist_ok=True)

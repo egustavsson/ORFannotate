@@ -1,6 +1,6 @@
 # ORFannotate
 
-`ORFannotate` is a modular pipeline for predicting open reading frames (ORFs), annotating coding sequences (CDS) in GTF/GFF files, and summarizing transcript coding potential, including a simple heuristic for nonsense-mediated decay (NMD). For a comprehensive isoform-level quality assessment, consider using `SQANTI3` in parallel.
+`ORFannotate` is a modular pipeline that predicts open reading frames (ORFs), inserts accurate CDS features into GTF/GFF annotations and produces transcript-level summary that includes coding class, Kozak context, UTR lengths and an NMD flag. It is intended for rapid, reproducible analysis of both long-read and short-read transcriptomes.
 
 ---
 
@@ -33,7 +33,7 @@ conda env create -f ORFannotate.conda_env.yml
 conda activate ORFannotate
 ```
 
-> Note: All required tools are installed automatically when creating the environment.
+> Note: All required tools are installed when creating the environment.
 
 ---
 ## Input

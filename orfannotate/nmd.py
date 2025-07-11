@@ -1,3 +1,4 @@
+# This currently relies on the 50nt rule
 def predict_nmd(orf_end, junctions, strand):
     if not junctions:
         return 'FALSE'

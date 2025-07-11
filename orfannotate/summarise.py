@@ -1,4 +1,3 @@
-from __future__ import annotations
 import logging
 import json
 import tempfile
@@ -19,10 +18,12 @@ LOGGER = logging.getLogger(__name__)
 logging.basicConfig(format="%(levelname)s:%(name)s:%(message)s", level=logging.INFO)
 
 # Help functions
+
 def _load_transcript_sequences(transcript_fasta: Path):
     return SeqIO.to_dict(SeqIO.parse(str(transcript_fasta), "fasta"))
 
 # Main function
+
 def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, coding_cutoff=0.364):
     output_path = Path(output_path)
     output_dir = output_path.parent

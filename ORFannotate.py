@@ -12,7 +12,7 @@ from orfannotate.orf_filter import get_best_orfs_by_cpat, build_cds_features
 from orfannotate.gtf_annotation import annotate_gtf_with_cds
 from orfannotate.summarise import generate_summary
 
-# logging info. Only high-level written to terminal
+# logging info. Only high-level written to terminal as defined by ALLOWED_TERMS
 class SelectiveConsoleFilter(logging.Filter):
     ALLOWED_TERMS = [
         "Starting ORFannotate",
@@ -62,7 +62,7 @@ def _setup_logging(output_dir):
 
     return logger
 
-# count number of transcripts in GTF
+# count number of transcripts in GTF and print the value
 TX_RE = re.compile(r'transcript_id\s+"([^"]+)"')
 
 def _count_unique_transcripts(gtf_path):
@@ -174,19 +174,19 @@ def main():
     logger.info("Building database with CDS features for summary generation")
     annotated_db = gffutils.create_db(
         annotated_gtf,
-        dbfn=":memory:",
-        force=True,
-        keep_order=True,
-        disable_infer_transcripts=True,
-        disable_infer_genes=True,
-        merge_strategy="create_unique",
-        sort_attribute_values=True,
-        pragmas={"journal_mode": "OFF",
-                 "synchronous": "OFF",
-                 "temp_store": "MEMORY"},
-        id_spec={"transcript": "transcript_id",
-                 "exon": "transcript_id",
-                 "CDS": "transcript_id"},
+        dbfn = ":memory:",
+        force = True,
+        keep_order = True,
+        disable_infer_transcripts = True,
+        disable_infer_genes = True,
+        merge_strategy = "create_unique",
+        sort_attribute_values = True,
+        pragmas = {"journal_mode": "OFF",
+                   "synchronous": "OFF",
+                   "temp_store": "MEMORY"},
+        id_spec = {"transcript": "transcript_id",
+                   "exon": "transcript_id",
+                   "CDS": "transcript_id"},
     )
     
     # generate final summary using the the DB with CDS information
@@ -196,7 +196,7 @@ def main():
         transcript_fasta,
         annotated_db,
         summary_tsv,
-        coding_cutoff=coding_cutoff,
+        coding_cutoff = coding_cutoff,
     )
 
     # Close databases

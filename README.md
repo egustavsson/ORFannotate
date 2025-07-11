@@ -59,7 +59,7 @@ python ORFannotate.py --help
 This will print:
 
 ```
-usage: ORFannotate.py [-h] --gtf GTF --fa FA --outdir OUTDIR [--coding-cutoff CODING_CUTOFF]
+usage: ORFannotate.py [-h] --gtf GTF --fa FA --outdir OUTDIR [--species {human,mouse,fly,zebrafish}] [--coding-cutoff CODING_CUTOFF]
 
 ORFannotate – predict coding ORFs, annotate GTF, and generate summaries.
 
@@ -69,7 +69,8 @@ required arguments:
   --outdir          Directory to write all outputs
 
 optional arguments:
-  --coding-cutoff   CPAT probability threshold to classify coding vs noncoding (default: 0.364)
+  --species         Species model to use for CPAT (choices: human, mouse, fly, zebrafish). Default: human
+  --coding-cutoff   CPAT probability threshold to classify coding vs noncoding (if not set, default for species is used)
 ```
 To run the full pipeline:
 ```bash
@@ -80,6 +81,30 @@ python ORFannotate.py --gtf annotations.gtf --fa genome.fa --outdir output/
 ```bash
 python ORFannotate.py transcripts.gtf genome.fa output/
 ```
+
+## CPAT Species Support
+
+ORFannotate now supports multiple species using CPAT’s pre-trained models:
+
+| Species    | Hexamer file                  | Logistic model                   | Default cutoff |
+|------------|-------------------------------|----------------------------------|----------------|
+| Human      | data/Human_Hexamer.tsv        | data/Human_logitModel.RData      | 0.364          |
+| Mouse      | data/Mouse_Hexamer.tsv        | data/Mouse_logitModel.RData      | 0.44           |
+| Fly        | data/Fly_Hexamer.tsv          | data/Fly_logitModel.RData        | 0.39           |
+| Zebrafish  | data/Zebrafish_Hexamer.tsv    | data/Zebrafish_logitModel.RData  | 0.38           |
+
+Use the `--species` argument to select the appropriate model. If `--coding-cutoff` is not specified, the pipeline will use the default cutoff for the selected species.
+
+> [!NOTE]
+> ***Training or Updating CPAT Models***
+>
+> You can train your own CPAT models, either for unsupported species or to update the model for an existing species using improved coding and noncoding transcript sets.
+> This requires building a custom hexamer frequency table and logistic regression model.
+> 
+> Refer to the [CPAT documentation](https://cpat.readthedocs.io/en/latest/#training-a-custom-model) for detailed instructions.
+
+
+
 
 After a successful run, the following files will be saved in `<output_dir>`:
 

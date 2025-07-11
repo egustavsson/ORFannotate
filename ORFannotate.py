@@ -4,6 +4,8 @@ import io
 import logging
 import gffutils
 import argparse
+import json
+from datetime import datetime
 
 # Internal modules
 from orfannotate.orf_prediction import run_cpat
@@ -100,7 +102,7 @@ def main():
     genome_fasta = args.fa
     output_dir = args.outdir
     species = args.species.lower()
-    
+
     _validate_inputs(gtf_path, genome_fasta)
 
     os.makedirs(output_dir, exist_ok=True)
@@ -132,6 +134,14 @@ def main():
     logger.info("Step 2: Extracting transcript sequences...")
     transcript_fasta = os.path.join(output_dir, "transcripts.fa")
     extract_transcripts_from_gtf(gtf_db, genome_fasta, transcript_fasta)
+
+    # Validate transcript ID consistency
+    from Bio import SeqIO
+    fasta_tx_ids = {rec.id for rec in SeqIO.parse(transcript_fasta, "fasta")}
+    gtf_tx_ids = {t.id for t in gtf_db.features_of_type("transcript")}
+    missing = gtf_tx_ids - fasta_tx_ids
+    if missing:
+        logger.warning(f"{len(missing)} transcripts from GTF missing in extracted FASTA: e.g. {sorted(list(missing))[:5]}")
 
     logger.info("Step 3: Predicting and scoring ORFs...")
     logger.info(f"Using CPAT model for species: {species}")
@@ -171,6 +181,9 @@ def main():
     logger.info(
         f"Selected {len(coding_orfs):,} transcripts classified as coding (cutoff = {coding_cutoff})",
     )
+
+    if not coding_orfs:
+        logger.warning("No coding transcripts predicted above the cutoff. Downstream outputs may be empty or incomplete.")
 
     logger.info("Step 5: Annotating GTF with CDS features...")
     logger.info(f"Adding CDS to {len(coding_orfs):,} coding transcripts")
@@ -216,6 +229,21 @@ def main():
         pass
 
     logger.info(f"Summary written to {summary_tsv}")
+
+    # Save parameters and summary
+    params = {
+        "timestamp": datetime.now().isoformat(),
+        "gtf": os.path.abspath(gtf_path),
+        "fasta": os.path.abspath(genome_fasta),
+        "outdir": os.path.abspath(output_dir),
+        "species": species,
+        "coding_cutoff": coding_cutoff
+    }
+
+    with open(os.path.join(output_dir, "parameters.json"), "w") as f:
+        json.dump(params, f, indent = 2)
+
+    logger.info("Parameters saved to parameters.json")
     logger.info("ORFannotate completed successfully.")
 
 if __name__ == "__main__":

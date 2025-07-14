@@ -84,6 +84,15 @@ def _validate_inputs(gtf_path, genome_fasta):
         raise FileNotFoundError(f"FASTA file not found: {genome_fasta}")
     if not os.path.isfile(genome_fasta):
         raise ValueError(f"FASTA path is not a file: {genome_fasta}")
+    
+    # ensure GTF contains transcript features
+    with open(gtf_path) as fh:
+        has_transcripts = any("\ttranscript\t" in line for line in fh if not line.startswith("#"))
+    if not has_transcripts:
+        raise ValueError(
+            f"The GTF file does not contain any 'transcript' features. "
+            f"Please ensure it includes both 'transcript' and 'exon' records."
+        )
 
 def main():
     parser = argparse.ArgumentParser(

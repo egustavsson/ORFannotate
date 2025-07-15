@@ -111,6 +111,7 @@ After a successful run, the following files will be saved in `<output_dir>`:
 | **File**                      | **Description**                                                  |
 |-------------------------------|------------------------------------------------------------------|
 | `transcripts.fa`              | FASTA file of full transcript sequences                          |
+| `CPAT/cpat.ORF_prob.tsv`      | CPAT output for the top 5 ORF per transcript                     |
 | `CPAT/cpat.ORF_prob.best.tsv` | CPAT output for the best ORF per transcript                      |
 | `CPAT/cpat_debug.tsv`         | Full CPAT-scored ORFs (optional debug output)                    |
 | `CPAT/CPAT_run_info.log`      | Full CPAT command log                                            |

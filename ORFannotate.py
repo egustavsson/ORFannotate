@@ -10,8 +10,8 @@ from datetime import datetime
 # Internal modules
 from orfannotate.orf_prediction import run_cpat
 from orfannotate.transcript_extraction import extract_transcripts_from_gtf
-from orfannotate.orf_filter import get_best_orfs_by_cpat, build_cds_features
-from orfannotate.gtf_annotation import annotate_gtf_with_cds
+from orfannotate.orf_filter import get_best_orfs_by_cpat
+from orfannotate.gtf_annotation import build_cds_features, annotate_gtf_with_cds
 from orfannotate.summarise import generate_summary
 
 # logging info. Only high-level written to terminal as defined by ALLOWED_TERMS

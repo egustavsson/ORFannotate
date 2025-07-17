@@ -211,7 +211,22 @@ ORFannotate/
 │   ├── nmd.py
 │   ├── kozak.py
 │   ├── orf_filter.py
-│   ├── summarise.py
+│   └── summarise.py
+|
+├── tests/                    # Unit tests (pytest)
+│   ├── test_imports.py
+│   ├── test_kozak.py
+│   ├── test_nmd.py
+│   └── test_orf_filter.py
+│
+├── data/                     # CPAT model files (hexamer and logitModel)
+│   ├── Human_Hexamer.tsv
+│   |── Human_logitModel.RData
+│   └── ...
+│
+├── docs/
+│   └── logo.svg
+│
 ├── LICENSE
 └── README.md
 ```

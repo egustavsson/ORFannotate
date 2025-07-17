@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/logo.svg" alt="ORFannotate Logo" width="600"/>
+</p>
+
 # ORFannotate
 
 `ORFannotate` is a modular pipeline that predicts open reading frames (ORFs), inserts accurate CDS features into GTF/GFF annotations and produces transcript-level summary that includes coding class, Kozak context, UTR lengths and an NMD flag. It is intended for rapid, reproducible analysis of both long-read and short-read transcriptomes.

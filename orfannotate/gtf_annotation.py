@@ -1,9 +1,6 @@
 import gffutils
 import logging
 from collections import defaultdict
-from Bio import SeqIO
-from Bio.SeqRecord import SeqRecord
-from Bio.Seq import Seq
 
 logger = logging.getLogger(__name__)
 

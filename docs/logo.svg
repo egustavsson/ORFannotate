@@ -25,9 +25,9 @@
      inkscape:document-units="mm"
      showgrid="false"
      showguides="true"
-     inkscape:zoom="0.53858859"
-     inkscape:cx="233.9448"
-     inkscape:cy="111.40229"
+     inkscape:zoom="0.38083964"
+     inkscape:cx="-89.27642"
+     inkscape:cy="-39.386656"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
      inkscape:window-x="1912"
@@ -44,80 +44,71 @@
     <g
        id="g6372"
        transform="matrix(1.5680556,0,0,1.5680556,-59.227805,-74.515693)" />
-    <g
-       id="g6566"
-       transform="matrix(2.1683928,0,0,2.1683928,-63.725088,-207.96754)">
-      <path
-         style="fill:#a6e7ae;fill-opacity:1;stroke:#000000;stroke-width:1.25131;stroke-miterlimit:2.8;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-         d="M 41.909726,147.05956 H 153.90245"
-         id="path4142" />
-      <rect
-         style="fill:#a6e7ae;fill-opacity:1;stroke:#000000;stroke-width:0.798;stroke-miterlimit:2.8;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-         id="rect1898"
-         width="30.569075"
-         height="19.87258"
-         x="84.387863"
-         y="131.36945"
-         ry="1.2783182"
-         transform="matrix(1.5680556,0,0,1.5680556,-59.227805,-74.515694)" />
-      <g
-         id="g3360"
-         transform="matrix(1.656906,0,0,1.656906,-67.782443,-87.156353)">
-        <text
-           xml:space="preserve"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:14.1505px;font-family:Roboto;-inkscape-font-specification:'Roboto, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke-width:0.382456;stroke-miterlimit:2.8;stroke-dasharray:0, 4.20701"
-           x="99.28624"
-           y="143.79564"
-           id="text236"><tspan
-             sodipodi:role="line"
-             id="tspan234"
-             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:14.1505px;font-family:Roboto;-inkscape-font-specification:'Roboto, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke-width:0.382457"
-             x="99.28624"
-             y="143.79564">ORF</tspan></text>
-        <text
-           xml:space="preserve"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:6.6145px;font-family:Roboto;-inkscape-font-specification:'Roboto, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.35755;stroke-miterlimit:2.8;stroke-dasharray:0, 3.93303"
-           x="86.313934"
-           y="149.10516"
-           id="text1782"><tspan
-             sodipodi:role="line"
-             id="tspan1780"
-             style="stroke-width:0.357551"
-             x="86.313934"
-             y="149.10516">annotate</tspan></text>
-      </g>
-      <rect
-         style="fill:#f4f4f4;fill-opacity:1;stroke:#000000;stroke-width:1.25131;stroke-miterlimit:2.8;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-         id="rect1898-6"
-         width="29.599634"
-         height="13.59055"
-         x="31.621151"
-         y="140.2643"
-         ry="1.6564679" />
-      <rect
-         style="fill:#f4f4f4;fill-opacity:1;stroke:#000000;stroke-width:1.25131;stroke-miterlimit:2.8;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-         id="rect1898-6-7"
-         width="24.266304"
-         height="13.70415"
-         x="139.38684"
-         y="140.20749"
-         ry="1.6657753" />
-      <rect
-         style="fill:#a6e7ae;fill-opacity:1;stroke:#000000;stroke-width:1.25131;stroke-miterlimit:2.8;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-         id="rect1898-8"
-         width="4.408134"
-         height="32.027916"
-         x="60.667133"
-         y="131.04561"
-         ry="1.9391954" />
-      <rect
-         style="fill:#a6e7ae;fill-opacity:1;stroke:#000000;stroke-width:1.25131;stroke-miterlimit:2.8;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-         id="rect1898-8-1"
-         width="10.666397"
-         height="31.353369"
-         x="129.22723"
-         y="131.38287"
-         ry="1.2835984" />
-    </g>
+    <path
+       style="fill:#a6e7ae;fill-opacity:1;stroke:#000000;stroke-width:2.71333;stroke-miterlimit:2.8;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 27.15166,110.91535 H 269.99588"
+       id="path4142" />
+    <rect
+       style="fill:#a6e7ae;fill-opacity:1;stroke:#000000;stroke-width:2.71333;stroke-miterlimit:2.8;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1898"
+       width="103.93976"
+       height="67.569962"
+       x="94.778046"
+       y="77.130371"
+       ry="4.346487" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:56.8191px;font-family:Calibri;-inkscape-font-specification:'Calibri, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke-width:1.53569;stroke-miterlimit:2.8;stroke-dasharray:0, 16.8926"
+       x="146.22293"
+       y="120.15424"
+       id="text236"><tspan
+         sodipodi:role="line"
+         id="tspan234"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:56.8191px;font-family:Calibri;-inkscape-font-specification:'Calibri, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke-width:1.53569"
+         x="146.22293"
+         y="120.15424">ORF</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:24.8336px;font-family:Calibri;-inkscape-font-specification:'Calibri, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:1.34238;stroke-miterlimit:2.8;stroke-dasharray:0, 14.7663"
+       x="99.561989"
+       y="137.17838"
+       id="text1782"><tspan
+         sodipodi:role="line"
+         id="tspan1780"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:24.8336px;font-family:Calibri;-inkscape-font-specification:'Calibri, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:1.34239"
+         x="99.561989"
+         y="137.17838">annotate</tspan></text>
+    <rect
+       style="fill:#f4f4f4;fill-opacity:1;stroke:#000000;stroke-width:2.71333;stroke-miterlimit:2.8;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1898-6"
+       width="64.183632"
+       height="29.469652"
+       x="4.8419881"
+       y="96.18055"
+       ry="3.5918732" />
+    <rect
+       style="fill:#f4f4f4;fill-opacity:1;stroke:#000000;stroke-width:2.71333;stroke-miterlimit:2.8;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1898-6-7"
+       width="52.618877"
+       height="29.715981"
+       x="238.52034"
+       y="96.057373"
+       ry="3.6120551" />
+    <rect
+       style="fill:#a6e7ae;fill-opacity:1;stroke:#000000;stroke-width:2.71333;stroke-miterlimit:2.8;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1898-8"
+       width="9.5585661"
+       height="69.449104"
+       x="67.825089"
+       y="76.190811"
+       ry="4.2049375" />
+    <rect
+       style="fill:#a6e7ae;fill-opacity:1;stroke:#000000;stroke-width:2.71333;stroke-miterlimit:2.8;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1898-8-1"
+       width="23.128939"
+       height="67.98642"
+       x="216.49031"
+       y="76.922134"
+       ry="2.7833455" />
   </g>
 </svg>

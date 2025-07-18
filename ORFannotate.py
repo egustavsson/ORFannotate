@@ -5,6 +5,7 @@ import gffutils
 import argparse
 import json
 from datetime import datetime
+from pathlib import Path
 
 # Internal modules
 from orfannotate.orf_prediction import run_cpat
@@ -12,6 +13,10 @@ from orfannotate.transcript_extraction import extract_transcripts_from_gtf
 from orfannotate.orf_filter import get_best_orfs_by_cpat
 from orfannotate.gtf_annotation import build_cds_features, annotate_gtf_with_cds
 from orfannotate.summarise import generate_summary
+
+# path relative to ORFannotate to allow easy integration with snakemake, nextflow workflows
+MODULE_DIR = Path(__file__).resolve().parent
+DATA_DIR = MODULE_DIR / "data"
 
 # logging info. Only high-level written to terminal as defined by ALLOWED_TERMS
 class SelectiveConsoleFilter(logging.Filter):
@@ -152,17 +157,24 @@ def main():
         logger.warning(f"{len(missing)} transcripts from GTF missing in extracted FASTA: e.g. {sorted(list(missing))[:5]}")
 
     logger.info("Step 3: Predicting and scoring ORFs...")
-    logger.info(f"Using CPAT model for species: {species}")
-
+    
+    model_dir = DATA_DIR
+    
     species_models = {
-        "human": {"hexamer": "data/Human_Hexamer.tsv", "model": "data/Human_logitModel.RData"},
-        "mouse": {"hexamer": "data/Mouse_Hexamer.tsv", "model": "data/Mouse_logitModel.RData"},
-        "fly": {"hexamer": "data/Fly_Hexamer.tsv", "model": "data/Fly_logitModel.RData"},
-        "zebrafish": {"hexamer": "data/Zebrafish_Hexamer.tsv", "model": "data/Zebrafish_logitModel.RData"}
+        "human": {"hexamer": model_dir / "Human_Hexamer.tsv",
+                  "model" : model_dir / "Human_logitModel.RData"},
+        "mouse": {"hexamer" : model_dir / "Mouse_Hexamer.tsv",
+                  "model" : model_dir / "Mouse_logitModel.RData"},
+        "fly": {"hexamer" : model_dir / "Fly_Hexamer.tsv",
+                  "model" : model_dir / "Fly_logitModel.RData"},
+        "zebrafish": {"hexamer": model_dir / "Zebrafish_Hexamer.tsv",
+                      "model" : model_dir / "Zebrafish_logitModel.RData"}
     }
-
-    hexamer_path = os.path.abspath(species_models[species]["hexamer"])
-    logit_model_path = os.path.abspath(species_models[species]["model"])
+    
+    logger.info(f"Using CPAT model directory: {model_dir}")
+    
+    hexamer_path = str(species_models[species]["hexamer"])
+    logit_model_path = str(species_models[species]["model"])
 
     default_cutoffs = {
         "human": 0.364,

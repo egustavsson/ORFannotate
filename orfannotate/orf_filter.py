@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 def get_best_orfs_by_cpat(cpat_best_path, all_orfs_df=None, debug_output_path=None):
     df = pd.read_csv(cpat_best_path, sep='\t')
-
+        
     # Strip ORF suffix to group by transcript
     df["base_id"] = df["ID"].str.replace(r'_ORF_\d+$', '', regex=True)
 

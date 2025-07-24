@@ -64,8 +64,6 @@ def build_cds_features(gtf_db, best_orfs):
                 cds_end_gen = exon.end - (cds_exon_start_tr - exon_tr_start)
                 cds_start_gen = exon.end - (cds_exon_end_tr - exon_tr_start)
 
-            frame = (cds_exon_start_tr - cds_start_tr) % 3
-
             cds_features.append({
                 "seqid": exon.seqid,
                 "source": "ORFannotate",
@@ -74,7 +72,7 @@ def build_cds_features(gtf_db, best_orfs):
                 "end": max(cds_start_gen, cds_end_gen),
                 "score": ".",
                 "strand": tx.strand,
-                "frame": str(frame),
+                "frame": ".",
                 "attributes": {
                     "gene_id": tx.attributes.get("gene_id", [""])[0],
                     "transcript_id": tid,

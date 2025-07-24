@@ -14,7 +14,7 @@ from orfannotate.orf_filter import get_best_orfs_by_cpat
 from orfannotate.gtf_annotation import build_cds_features, annotate_gtf_with_cds
 from orfannotate.summarise import generate_summary
 
-# path relative to ORFannotate to allow easy integration with snakemake, nextflow workflows
+# path relative to ORFannotate to allow easy integration with snakemake, nextflow workflows etc.
 MODULE_DIR = Path(__file__).resolve().parent
 DATA_DIR = MODULE_DIR / "data"
 

@@ -212,6 +212,14 @@ def main():
     annotated_gtf = os.path.join(output_dir, "ORFannotate_annotated.gtf")
     annotate_gtf_with_cds(gtf_path, cds_features, annotated_gtf)
     logger.info(f"Annotated GTF written to {annotated_gtf}")
+    
+    # Cleanup first db to free memory earlier
+    try:
+        gtf_db.conn.close()
+        del gtf_db
+        logger.info("Closed and removed first GTF database to free memory")
+    except Exception:
+        logger.warning("Could not close first GTF database early")
 
     logger.info("Step 6: Annotating transcripts and generating final summary TSV...")
 
@@ -243,7 +251,6 @@ def main():
     )
 
     try:
-        gtf_db.conn.close()
         annotated_db.conn.close()
     except Exception:
         pass

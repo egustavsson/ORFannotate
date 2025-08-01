@@ -79,6 +79,32 @@ def _count_unique_transcripts(gtf_path):
 def _keep_tx_and_exons(feat):
     return feat if feat.featuretype in {"transcript", "exon"} else False
 
+# This checks that the inpuit GTF/GFF has the required structure and includes both transcript and exon rows
+def _quick_gtf_check(gtf_path, n=2000):
+    tx_ok = ex_ok = False
+
+    with open(gtf_path, "rt", encoding="utf-8") as fh:
+        checked = 0
+        for line in fh:
+            if line.startswith("#") or not line.strip():
+                continue
+            ftype  = line.split("\t", 3)[2]
+            attrs  = line.rsplit("\t", 1)[-1]
+            if ftype in {"transcript"}:
+                tx_ok = "gene_id" in attrs and "transcript_id" in attrs
+            elif ftype == "exon":
+                ex_ok = "gene_id" in attrs and "transcript_id" in attrs
+            checked += 1
+            if tx_ok and ex_ok:
+                return  # validation passed
+            if checked >= n:
+                break
+
+    raise ValueError(
+        "GTF check failed: need at least one transcript and one exon line "
+        "containing both gene_id and transcript_id."
+    )
+
 def _validate_inputs(gtf_path, genome_fasta):
     if not os.path.exists(gtf_path):
         raise FileNotFoundError(f"GTF file not found: {gtf_path}")
@@ -89,13 +115,22 @@ def _validate_inputs(gtf_path, genome_fasta):
     if not os.path.isfile(genome_fasta):
         raise ValueError(f"FASTA path is not a file: {genome_fasta}")
     
-    # ensure GTF contains transcript features
-    with open(gtf_path) as fh:
-        has_transcripts = any("\ttranscript\t" in line for line in fh if not line.startswith("#"))
-    if not has_transcripts:
+    # ensure GTF contains at least one transcript *and* one exon feature
+    has_transcripts = has_exons = False
+    with open(gtf_path, "rt", encoding="utf-8") as fh:
+        for line in fh:
+            if line.startswith("#"):
+                continue
+            if "\ttranscript\t" in line:
+                has_transcripts = True
+            elif "\texon\t" in line:
+                has_exons = True
+            if has_transcripts and has_exons:
+                break
+
+    if not has_transcripts or not has_exons:
         raise ValueError(
-            f"The GTF file does not contain any 'transcript' features. "
-            f"Please ensure it includes both 'transcript' and 'exon' records."
+            "The GTF file must contain both 'transcript' and 'exon' features."
         )
 
 def main():
@@ -116,7 +151,7 @@ def main():
     output_dir = args.outdir
     species = args.species.lower()
 
-    _validate_inputs(gtf_path, genome_fasta)
+    _validate_inputs(gtf_path, genome_fasta)    
 
     os.makedirs(output_dir, exist_ok=True)
     logger = _setup_logging(output_dir)

@@ -4,7 +4,7 @@
 
 # ORFannotate
 
-`ORFannotate` is a tool that predicts open reading frames (ORFs), inserts accurate CDS features into GTF/GFF annotations and produces transcript-level summary that includes coding class, Kozak context, UTR lengths and splicing, and an NMD flag. It is intended for rapid, reproducible analysis of both long-read and short-read transcriptomes.
+`ORFannotate` is a Python-based command-line tool for predicting coding open reading frames (ORFs) from transcript annotations, inserting accurate CDS features into GTF/GFF files, and producing a detailed transcript-level summary. The summary includes coding classification based on CPAT scores, Kozak context strength, 5′/3′ UTR lengths, splice junction counts (classified by UTR/CDS), and a predicted NMD flag. It is designed for rapid, reproducible analysis of both long-read and short-read transcriptomes, with minimal dependencies and support for multiple species.
 
 ---
 
@@ -202,6 +202,7 @@ ORFannotate/
 ├── ORFannotate.conda_env.yml     # Conda environment file
 ├── orfannotate/                  # Modular Python package
 │   ├── __init__.py
+|   ├── utils.py                  # Shared helper functions
 │   ├── transcript_extraction.py
 │   ├── orf_prediction.py
 │   ├── gtf_annotation.py
@@ -210,13 +211,13 @@ ORFannotate/
 │   ├── orf_filter.py
 │   └── summarise.py
 |
-├── tests/                    # Unit tests (pytest)
+├── tests/                        # Unit tests (pytest)
 │   ├── test_imports.py
 │   ├── test_kozak.py
 │   ├── test_nmd.py
 │   └── test_orf_filter.py
 │
-├── data/                     # CPAT model files (hexamer and logitModel)
+├── data/                         # CPAT model files (hexamer and logitModel)
 │   ├── Human_Hexamer.tsv
 │   |── Human_logitModel.RData
 │   └── ...

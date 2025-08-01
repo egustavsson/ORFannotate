@@ -4,7 +4,7 @@
 
 # ORFannotate
 
-`ORFannotate` is a tool that predicts open reading frames (ORFs), inserts accurate CDS features into GTF/GFF annotations and produces transcript-level summary that includes coding class, Kozak context, UTR lengths and an NMD flag. It is intended for rapid, reproducible analysis of both long-read and short-read transcriptomes.
+`ORFannotate` is a tool that predicts open reading frames (ORFs), inserts accurate CDS features into GTF/GFF annotations and produces transcript-level summary that includes coding class, Kozak context, UTR lengths and splicing, and an NMD flag. It is intended for rapid, reproducible analysis of both long-read and short-read transcriptomes.
 
 ---
 
@@ -16,7 +16,7 @@
 - Generate a clean, tab-separated summary of ORF and coding properties, including:
   - ORF/CDS length (nt/aa), coding probability
   - Kozak context and strength classification
-  - Exon junction structure
+  - Exon and UTR junction structure
   - UTR lengths
   - NMD prediction
 - Generate fasta files with transcript, CDS, UTR (5'/3') and protein sequences
@@ -76,13 +76,13 @@ optional arguments:
   --species         Species model to use for CPAT (choices: human, mouse, fly, zebrafish). Default: human
   --coding-cutoff   CPAT probability threshold to classify coding vs noncoding (if not set, default for species is used)
 ```
-To run ORFannotate:
+To run `ORFannotate`:
 ```bash
 python ORFannotate.py --gtf annotations.gtf --fa genome.fa --outdir output/
 ```
 ## CPAT Species Support
 
-ORFannotate now supports multiple species using CPAT’s pre-trained models:
+`ORFannotate` now supports multiple species using CPAT’s pre-trained models:
 
 | Species    | Hexamer file                  | Logistic model                   | Default cutoff |
 |------------|-------------------------------|----------------------------------|----------------|

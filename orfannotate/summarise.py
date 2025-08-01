@@ -14,42 +14,10 @@ import gffutils
 # Internal modules
 from orfannotate.nmd import predict_nmd
 from orfannotate.kozak import score_kozak
+from orfannotate.utils import load_transcript_sequences, map_junctions_to_tx
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(format="%(levelname)s:%(name)s:%(message)s", level=logging.INFO)
-
-# Help functions
-
-def _load_transcript_sequences(transcript_fasta: Path):
-    return SeqIO.to_dict(SeqIO.parse(str(transcript_fasta), "fasta"))
-
-def _map_junctions_to_tx(junctions_genomic, exons):
-    offsets = []
-    cum_len = 0
-    for exon in exons:
-        offsets.append((exon.start, exon.end, cum_len))
-        cum_len += exon.end - exon.start + 1
-
-    mapped = []
-    for donor, acceptor in junctions_genomic:
-        donor_tx = acceptor_tx = None
-        for start, end, offset in offsets:
-            if start <= donor <= end:
-                donor_tx = offset + (donor - start + 1)
-            if start <= acceptor <= end:
-                acceptor_tx = offset + (acceptor - start + 1)
-        # Handle boundary cases
-        if donor_tx is None:
-            for start, end, offset in offsets:
-                if donor == end + 1:
-                    donor_tx = offset + (end - start + 1)
-        if acceptor_tx is None:
-            for start, end, offset in offsets:
-                if acceptor == start - 1:
-                    acceptor_tx = offset + 1
-        if donor_tx and acceptor_tx:
-            mapped.append((donor_tx, acceptor_tx))
-    return mapped
 
 # Main function
 
@@ -92,7 +60,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
                 db = gffutils.FeatureDB(tmpdb.name)
 
     # Load transcript sequences
-    transcript_seqs = _load_transcript_sequences(Path(transcript_fa))
+    transcript_seqs = load_transcript_sequences(Path(transcript_fa))
 
     summary = []
     cds_records = []
@@ -168,7 +136,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
         total_junctions = len(junctions_genomic)
 
         # Map to transcript coordinates
-        junctions_tx = _map_junctions_to_tx(junctions_genomic, exons)
+        junctions_tx = map_junctions_to_tx(junctions_genomic, exons)
 
         # UTR classification
         if coding_class == "coding" and isinstance(orf_start, int) and isinstance(orf_end_tx, int):

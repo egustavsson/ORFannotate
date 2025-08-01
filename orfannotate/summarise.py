@@ -25,10 +25,14 @@ def _load_transcript_sequences(transcript_fasta: Path):
 
 # Main function
 
-def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, coding_cutoff=0.364):
+def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, coding_cutoff=0.364, junctions_by_tx=None):
     output_path = Path(output_path)
     output_dir = output_path.parent
 
+    if junctions_by_tx is None:
+        raise ValueError("junctions_by_tx dictionary must be provided for summarisation")
+
+    # Load GTF database
     if isinstance(gtf_db_or_path, gffutils.FeatureDB):
         db = gtf_db_or_path
     else:
@@ -59,7 +63,9 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
                 )
                 db = gffutils.FeatureDB(tmpdb.name)
 
+    # Load transcript sequences
     transcript_seqs = _load_transcript_sequences(Path(transcript_fa))
+
     summary = []
     cds_records = []
     protein_records = []
@@ -92,10 +98,9 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
         if has_orf:
             orf_start = orf_data["start"]
             orf_end_tx = orf_data["end"]
-            frame = orf_data["frame"]
             coding_prob = orf_data["coding_prob"]
         else:
-            orf_start = orf_end_tx = frame = "NA"
+            orf_start = orf_end_tx = "NA"
             coding_prob = "NA"
 
         cds_feats = list(children(tx, featuretype="CDS", order_by="start"))
@@ -130,18 +135,49 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
         if strand == '-':
             exons = exons[::-1]
 
-        junctions: List[Tuple[int, int]] = [
-            (exons[i].end, exons[i + 1].start) for i in range(len(exons) - 1)
-        ]
-        junction_count = len(junctions)
+        # Compute exon offsets to map genomic → transcript coordinates
+        offsets = []
+        cum_len = 0
+        for exon in exons:
+            offsets.append((exon.start, exon.end, cum_len))
+            cum_len += exon.end - exon.start + 1
 
-        if has_orf and orf_end_gen is not None and junctions:
-            last_j = junctions[-1][0] if strand == '+' else junctions[0][1]
+        def genome_to_tx(pos):
+            for start, end, offset in offsets:
+                if start <= pos <= end:
+                    return offset + (pos - start + 1)
+            return None
+
+        # Get junctions from in-memory dict
+        junctions_genomic = junctions_by_tx.get(tid, [])
+        total_junctions = len(junctions_genomic)
+
+        junctions_tx = [
+            (genome_to_tx(d), genome_to_tx(a))
+            for d, a in junctions_genomic
+            if genome_to_tx(d) and genome_to_tx(a)
+        ]
+
+        # UTR-priority classification
+        if coding_class == "coding" and isinstance(orf_start, int) and isinstance(orf_end_tx, int):
+            utr5_junctions = cds_junctions = utr3_junctions = 0
+            for donor_tx, acceptor_tx in junctions_tx:
+                if donor_tx < orf_start or acceptor_tx < orf_start:
+                    utr5_junctions += 1
+                elif donor_tx > orf_end_tx or acceptor_tx > orf_end_tx:
+                    utr3_junctions += 1
+                else:
+                    cds_junctions += 1
+        else:
+            utr5_junctions = cds_junctions = utr3_junctions = "NA"
+
+        if has_orf and orf_end_gen is not None and junctions_genomic:
+            last_j = junctions_genomic[-1][0] if strand == '+' else junctions_genomic[0][1]
             stop_to_last_ej = last_j - orf_end_gen if strand == '+' else orf_end_gen - last_j
         else:
             stop_to_last_ej = "NA"
 
-        nmd_flag = predict_nmd(orf_end_gen, junctions, strand) if coding_class == "coding" else "FALSE"
+        nmd_flag = predict_nmd(orf_end_gen, junctions_genomic, strand) if coding_class == "coding" else "FALSE"
 
         utr5_seq = utr3_seq = "NA"
         utr5_len = utr3_len = "NA"
@@ -176,7 +212,10 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
             "utr3_nt_len": utr3_len,
             "coding_prob": coding_prob,
             "coding_class": coding_class,
-            "junction_count": junction_count,
+            "total_junctions": total_junctions,
+            "utr5_junctions": utr5_junctions,
+            "cds_junctions": cds_junctions,
+            "utr3_junctions": utr3_junctions,
             "stop_to_last_EJ": stop_to_last_ej,
             "NMD_sensitive": nmd_flag,
             "kozak_strength": kozak_strength,
@@ -202,10 +241,4 @@ if __name__ == "__main__":
     args = cli.parse_args()
 
     best_orfs_dict = json.load(open(args.best_orfs_json))
-    generate_summary(
-        best_orfs_dict,
-        args.transcripts_fa,
-        args.gtf,
-        args.out,
-        args.coding_cutoff
-    )
+    raise ValueError("This script expects in-memory junctions when run directly. Use ORFannotate pipeline instead.")

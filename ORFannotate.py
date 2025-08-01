@@ -80,31 +80,6 @@ def _keep_tx_and_exons(feat):
     return feat if feat.featuretype in {"transcript", "exon"} else False
 
 # This checks that the inpuit GTF/GFF has the required structure and includes both transcript and exon rows
-def _quick_gtf_check(gtf_path, n=2000):
-    tx_ok = ex_ok = False
-
-    with open(gtf_path, "rt", encoding="utf-8") as fh:
-        checked = 0
-        for line in fh:
-            if line.startswith("#") or not line.strip():
-                continue
-            ftype  = line.split("\t", 3)[2]
-            attrs  = line.rsplit("\t", 1)[-1]
-            if ftype in {"transcript"}:
-                tx_ok = "gene_id" in attrs and "transcript_id" in attrs
-            elif ftype == "exon":
-                ex_ok = "gene_id" in attrs and "transcript_id" in attrs
-            checked += 1
-            if tx_ok and ex_ok:
-                return  # validation passed
-            if checked >= n:
-                break
-
-    raise ValueError(
-        "GTF check failed: need at least one transcript and one exon line "
-        "containing both gene_id and transcript_id."
-    )
-
 def _validate_inputs(gtf_path, genome_fasta):
     if not os.path.exists(gtf_path):
         raise FileNotFoundError(f"GTF file not found: {gtf_path}")
@@ -133,9 +108,19 @@ def _validate_inputs(gtf_path, genome_fasta):
             "The GTF file must contain both 'transcript' and 'exon' features."
         )
 
+def _collect_junctions(gtf_db):
+    junctions = {}
+    for tx in gtf_db.features_of_type("transcript"):
+        exons = list(gtf_db.children(tx, featuretype="exon", order_by="start"))
+        if len(exons) > 1:
+            junctions[tx.id] = [(exons[i].end, exons[i+1].start) for i in range(len(exons)-1)]
+    return junctions
+
+# Main function
+
 def main():
     parser = argparse.ArgumentParser(
-        description="ORFannotate – predict coding ORFs, annotate GTF, and generate summaries."
+        description="ORFannotate - predict coding ORFs, annotate GTF, and generate summaries."
     )
     parser.add_argument("--gtf", required=True, help="Input GTF or GFF file with transcript and exon features")
     parser.add_argument("--fa", required=True, help="Reference genome in FASTA format")
@@ -163,20 +148,20 @@ def main():
     logger.info("Step 1: Building GTF database in memory...")
     gtf_db = gffutils.create_db(
         gtf_path,
-        dbfn=":memory:",
-        force=True,
-        keep_order=True,
-        disable_infer_transcripts=True,
-        disable_infer_genes=True,
-        merge_strategy="create_unique",
-        sort_attribute_values=True,
-        transform=_keep_tx_and_exons,
-        pragmas={"journal_mode": "OFF",
-                 "synchronous": "OFF",
-                 "temp_store": "MEMORY"},
-        id_spec={"transcript": "transcript_id",
-                 "exon": "transcript_id",
-                 "CDS": "transcript_id"}
+        dbfn = ":memory:",
+        force = True,
+        keep_order = True,
+        disable_infer_transcripts = True,
+        disable_infer_genes = True,
+        merge_strategy = "create_unique",
+        sort_attribute_values = True,
+        transform = _keep_tx_and_exons,
+        pragmas = {"journal_mode": "OFF",
+                   "synchronous": "OFF",
+                   "temp_store": "MEMORY"},
+        id_spec = {"transcript": "transcript_id",
+                   "exon": "transcript_id",
+                   "CDS": "transcript_id"}
     )
 
     logger.info("Step 2: Extracting transcript sequences...")
@@ -261,28 +246,32 @@ def main():
     logger.info("Building database with CDS features for summary generation")
     annotated_db = gffutils.create_db(
         annotated_gtf,
-        dbfn=":memory:",
-        force=True,
-        keep_order=True,
-        disable_infer_transcripts=True,
-        disable_infer_genes=True,
-        merge_strategy="create_unique",
-        sort_attribute_values=True,
-        pragmas={"journal_mode": "OFF",
-                 "synchronous": "OFF",
-                 "temp_store": "MEMORY"},
-        id_spec={"transcript": "transcript_id",
-                 "exon": "transcript_id",
-                 "CDS": "transcript_id"},
+        dbfn = ":memory:",
+        force = True,
+        keep_order = True,
+        disable_infer_transcripts = True,
+        disable_infer_genes = True,
+        merge_strategy = "create_unique",
+        sort_attribute_values = True,
+        pragmas = {"journal_mode": "OFF",
+                   "synchronous": "OFF",
+                   "temp_store": "MEMORY"},
+        id_spec = {"transcript": "transcript_id",
+                   "exon": "transcript_id",
+                   "CDS": "transcript_id"},
     )
-
+    
+    # Collect junctions
+    junctions_mem = _collect_junctions(annotated_db)
     summary_tsv = os.path.join(output_dir, "ORFannotate_summary.tsv")
+    
     generate_summary(
         best_orfs,
         transcript_fasta,
         annotated_db,
         summary_tsv,
         coding_cutoff=coding_cutoff,
+        junctions_by_tx=junctions_mem
     )
 
     try:

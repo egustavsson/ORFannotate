@@ -23,6 +23,34 @@ logging.basicConfig(format="%(levelname)s:%(name)s:%(message)s", level=logging.I
 def _load_transcript_sequences(transcript_fasta: Path):
     return SeqIO.to_dict(SeqIO.parse(str(transcript_fasta), "fasta"))
 
+def _map_junctions_to_tx(junctions_genomic, exons):
+    offsets = []
+    cum_len = 0
+    for exon in exons:
+        offsets.append((exon.start, exon.end, cum_len))
+        cum_len += exon.end - exon.start + 1
+
+    mapped = []
+    for donor, acceptor in junctions_genomic:
+        donor_tx = acceptor_tx = None
+        for start, end, offset in offsets:
+            if start <= donor <= end:
+                donor_tx = offset + (donor - start + 1)
+            if start <= acceptor <= end:
+                acceptor_tx = offset + (acceptor - start + 1)
+        # Handle boundary cases
+        if donor_tx is None:
+            for start, end, offset in offsets:
+                if donor == end + 1:
+                    donor_tx = offset + (end - start + 1)
+        if acceptor_tx is None:
+            for start, end, offset in offsets:
+                if acceptor == start - 1:
+                    acceptor_tx = offset + 1
+        if donor_tx and acceptor_tx:
+            mapped.append((donor_tx, acceptor_tx))
+    return mapped
+
 # Main function
 
 def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, coding_cutoff=0.364, junctions_by_tx=None):
@@ -135,39 +163,31 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
         if strand == '-':
             exons = exons[::-1]
 
-        # Compute exon offsets to map genomic → transcript coordinates
-        offsets = []
-        cum_len = 0
-        for exon in exons:
-            offsets.append((exon.start, exon.end, cum_len))
-            cum_len += exon.end - exon.start + 1
-
-        def genome_to_tx(pos):
-            for start, end, offset in offsets:
-                if start <= pos <= end:
-                    return offset + (pos - start + 1)
-            return None
-
         # Get junctions from in-memory dict
         junctions_genomic = junctions_by_tx.get(tid, [])
         total_junctions = len(junctions_genomic)
 
-        junctions_tx = [
-            (genome_to_tx(d), genome_to_tx(a))
-            for d, a in junctions_genomic
-            if genome_to_tx(d) and genome_to_tx(a)
-        ]
+        # Map to transcript coordinates
+        junctions_tx = _map_junctions_to_tx(junctions_genomic, exons)
 
-        # UTR-priority classification
+        # Strand-aware UTR-priority classification
         if coding_class == "coding" and isinstance(orf_start, int) and isinstance(orf_end_tx, int):
             utr5_junctions = cds_junctions = utr3_junctions = 0
             for donor_tx, acceptor_tx in junctions_tx:
-                if donor_tx < orf_start or acceptor_tx < orf_start:
-                    utr5_junctions += 1
-                elif donor_tx > orf_end_tx or acceptor_tx > orf_end_tx:
-                    utr3_junctions += 1
-                else:
-                    cds_junctions += 1
+                if strand == '+':
+                    if donor_tx <= orf_start - 1 and acceptor_tx <= orf_start - 1:
+                        utr5_junctions += 1
+                    elif donor_tx >= orf_end_tx + 1 and acceptor_tx >= orf_end_tx + 1:
+                        utr3_junctions += 1
+                    else:
+                        cds_junctions += 1
+                else:  # negative strand: 5' UTR is after ORF end
+                    if donor_tx >= orf_end_tx + 1 and acceptor_tx >= orf_end_tx + 1:
+                        utr5_junctions += 1
+                    elif donor_tx <= orf_start - 1 and acceptor_tx <= orf_start - 1:
+                        utr3_junctions += 1
+                    else:
+                        cds_junctions += 1
         else:
             utr5_junctions = cds_junctions = utr3_junctions = "NA"
 

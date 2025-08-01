@@ -163,14 +163,14 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
         if strand == '-':
             exons = exons[::-1]
 
-        # Get junctions from in-memory dict
+        # Get junctions
         junctions_genomic = junctions_by_tx.get(tid, [])
         total_junctions = len(junctions_genomic)
 
         # Map to transcript coordinates
         junctions_tx = _map_junctions_to_tx(junctions_genomic, exons)
 
-        # Strand-aware UTR-priority classification
+        # UTR classification
         if coding_class == "coding" and isinstance(orf_start, int) and isinstance(orf_end_tx, int):
             utr5_junctions = cds_junctions = utr3_junctions = 0
             for donor_tx, acceptor_tx in junctions_tx:
@@ -261,4 +261,4 @@ if __name__ == "__main__":
     args = cli.parse_args()
 
     best_orfs_dict = json.load(open(args.best_orfs_json))
-    raise ValueError("This script expects in-memory junctions when run directly. Use ORFannotate pipeline instead.")
+    raise ValueError("This script expects in-memory junctions when run directly. Use ORFannotate.py instead.")

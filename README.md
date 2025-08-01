@@ -76,16 +76,10 @@ optional arguments:
   --species         Species model to use for CPAT (choices: human, mouse, fly, zebrafish). Default: human
   --coding-cutoff   CPAT probability threshold to classify coding vs noncoding (if not set, default for species is used)
 ```
-To run the full pipeline:
+To run ORFannotate:
 ```bash
 python ORFannotate.py --gtf annotations.gtf --fa genome.fa --outdir output/
 ```
-
-**Example:**
-```bash
-python ORFannotate.py transcripts.gtf genome.fa output/
-```
-
 ## CPAT Species Support
 
 ORFannotate now supports multiple species using CPAT’s pre-trained models:
@@ -149,7 +143,10 @@ The final output summary file `ORFannotate_summary.tsv` contains one row per tra
 | `orf_aa_len`        | ORF length in amino acids (only if coding) |
 | `coding_prob`       | CPAT-predicted coding probability |
 | `coding_class`      | `coding` or `noncoding` based on cutoff |
-| `junction_count`    | Number of exon–exon junctions |
+| `total_junctions`   | Total number of exon–exon junctions in the transcript |
+| `utr5_junctions`    | Number of junctions occurring fully within the 5′ UTR (only for coding) |
+| `cds_junctions`     | Number of junctions overlapping or inside the CDS region (only for coding) |
+| `utr3_junctions`    | Number of junctions occurring fully within the 3′ UTR (only for coding) |
 | `stop_to_last_EJ`   | Distance from stop codon to last exon junction |
 | `NMD_sensitive`     | `TRUE` if predicted to undergo NMD, else `FALSE` |
 | `kozak_strength`    | `strong`, `moderate`, `weak`, or `NA` (only if coding) |

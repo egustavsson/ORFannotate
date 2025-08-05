@@ -4,7 +4,9 @@
 
 # ORFannotate
 
-`ORFannotate` is a Python-based command-line tool for predicting coding open reading frames (ORFs) from transcript annotations, inserting accurate CDS features into GTF/GFF files, and producing a detailed transcript-level summary. The summary includes coding classification based on CPAT scores, Kozak context strength, 5′/3′ UTR lengths, splice junction counts (classified by UTR/CDS), and a predicted NMD flag. It is designed for rapid, reproducible analysis of both long-read and short-read transcriptomes, with minimal dependencies and support for multiple species.
+`ORFannotate` is a Python-based command-line tool for identifying coding open reading frames (ORFs) in transcript annotations. It augments GTF/GFF files with precise CDS features and generates a comprehensive transcript-level summary, including coding classification (CPAT score), Kozak context strength, 5′ and 3′ UTR lengths, splice junction distribution, and predicted nonsense-mediated decay (NMD) sensitivity.
+
+Designed for fast and reproducible transcriptome analysis, `ORFannotate` supports multiple species with pre-trained CPAT models, requires minimal dependencies, and integrates seamlessly into bioinformatics workflows.
 
 ---
 
@@ -101,9 +103,13 @@ Use the `--species` argument to select the appropriate model. If `--coding-cutof
 > 
 > Refer to the [CPAT documentation](https://cpat.readthedocs.io/en/latest/#training-a-custom-model) for detailed instructions.
 
+## Configuration
+`ORFannotate` includes a configuration file [config.json](data/config.json) defining:
+- Paths to CPAT model files for each supported species
+- Default CPAT probability cutoffs
+This allows developers to update or extend species model support without editing the main script.
 
-
-
+## Output files
 After a successful run, the following files will be saved in `<output_dir>`:
 
 | **File**                      | **Description**                                                  |
@@ -126,7 +132,7 @@ After a successful run, the following files will be saved in `<output_dir>`:
 > FASTA files are only generated for transcripts classified as coding. UTRs are only included if valid regions exist upstream or downstream of the predicted ORF.
 
 
-## Summary Output Fields
+### Summary Output Fields
 
 The final output summary file `ORFannotate_summary.tsv` contains one row per transcript and includes:
 
@@ -156,7 +162,7 @@ The final output summary file `ORFannotate_summary.tsv` contains one row per tra
 
 ---
 
-## Kozak Sequence Scoring
+### Kozak Sequence Scoring
 
 The Kozak consensus sequence plays a role in translation initiation efficiency. For each predicted coding transcript, `ORFannotate` extracts a 10-nucleotide sequence surrounding the start codon (positions −6 to +4) and classifies the Kozak strength:
 
@@ -183,7 +189,7 @@ If the sequence is too short to evaluate, strength is recorded as `"NA"`.
 
 ---
 
-## NMD Prediction
+### NMD Prediction
 `ORFannotate` predicts nonsense-mediated decay (NMD) susceptibility using a simple and widely accepted heuristic:
 
 >A transcript is considered NMD-sensitive if the stop codon lies more than 50 nucleotides upstream of the last exon–exon junction.

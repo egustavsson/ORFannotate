@@ -133,20 +133,23 @@ def main():
         logger.warning(f"{len(missing)} transcripts from GTF missing in extracted FASTA: e.g. {sorted(list(missing))[:5]}")
 
     logger.info("Step 3: Predicting and scoring ORFs...")
-    model_dir = DATA_DIR
-    species_models = {
-        "human": {"hexamer": model_dir / "Human_Hexamer.tsv", "model": model_dir / "Human_logitModel.RData"},
-        "mouse": {"hexamer": model_dir / "Mouse_Hexamer.tsv", "model": model_dir / "Mouse_logitModel.RData"},
-        "fly": {"hexamer": model_dir / "Fly_Hexamer.tsv", "model": model_dir / "Fly_logitModel.RData"},
-        "zebrafish": {"hexamer": model_dir / "Zebrafish_Hexamer.tsv", "model": model_dir / "Zebrafish_logitModel.RData"}
-    }
-    logger.info(f"Using CPAT model directory: {model_dir}")
+    
+    # Load species config from JSON
+    config_path = DATA_DIR / "config.json"
+    with open(config_path) as f:
+        config = json.load(f)
 
-    hexamer_path = str(species_models[species]["hexamer"])
-    logit_model_path = str(species_models[species]["model"])
+    if species not in config["species_models"]:
+        logger.error(f"Species '{species}' not found in config.json")
+        raise ValueError(f"Species '{species}' not supported. Check config.json.")
 
-    default_cutoffs = {"human": 0.364, "mouse": 0.44, "fly": 0.39, "zebrafish": 0.38}
-    coding_cutoff = args.coding_cutoff if args.coding_cutoff is not None else default_cutoffs[species]
+    species_data = config["species_models"][species]
+    hexamer_path = str(DATA_DIR / species_data["hexamer"])
+    logit_model_path = str(DATA_DIR / species_data["model"])
+    coding_cutoff = args.coding_cutoff if args.coding_cutoff is not None else species_data["cutoff"]
+
+    logger.info(f"Using CPAT model directory: {DATA_DIR}")
+    logger.info(f"Selected species: {species} | Cutoff: {coding_cutoff}")
     logger.info(f"Using coding cutoff: {coding_cutoff}")
 
     cpat_dir = os.path.join(output_dir, "CPAT")

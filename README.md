@@ -45,7 +45,7 @@ conda activate ORFannotate
 
 ## Quick test run
 
-To quickly verify that ORFannotate is installed and functioning, use the minimal test dataset provided in tests/test_data/.
+To quickly verify that ORFannotate is installed and functioning, use the minimal test dataset provided in `tests/test_data/`.
 See the [Minimal test dataset](tests/test_data/README.md) for details.
 
 ---

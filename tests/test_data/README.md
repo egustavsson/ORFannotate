@@ -1,7 +1,7 @@
 # Minimal test dataset
 
 This minimal dataset verifies that ORFannotate is installed and functioning correctly.
-It runs on a small, realistic subset of the genome (mitochondrial contig only) and completes in just a few seconds using minimal memory.
+It runs on a small, realistic subset of the genome and completes in just a few seconds using minimal memory.
 
 ## Included files 
 

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/logo.svg" alt="ORFannotate Logo" width="500"/>
+  <img src="docs/logo.svg" alt="ORFannotate Logo" width="400"/>
 </p>
 
 # ORFannotate
@@ -42,6 +42,14 @@ conda activate ORFannotate
 > Note: All required tools are installed when creating the environment.
 
 ---
+
+## Quick test run
+
+To quickly verify that ORFannotate is installed and functioning, use the minimal test dataset provided in tests/test_data/.
+See the [Minimal test dataset](test/test_data/README.md) for details.
+
+---
+
 ## Input
 
 The pipeline requires:

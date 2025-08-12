@@ -108,20 +108,15 @@ def build_cds_features(gtf_db, best_orfs):
 def annotate_gtf_with_cds(gtf_path, cds_features, output_path):
     """
     Write a cleaned GTF that contains, per transcript:
-      - transcript line (preserving original line)
-      - all exon lines (sorted by genomic start)
-      - all ORFannotate-predicted CDS lines (sorted by genomic start)
-
-    Everything else from the original (start_codon, stop_codon, UTR, CDS from
-    other sources, etc.) is removed. Transcripts with no predicted CDS are
-    kept as transcript + exon only.
+      - transcript line (from the original file)
+      - exons + ORFannotate-predicted CDS interleaved by genomic start
     """
     # Group predicted CDS by transcript_id
     cds_by_tid = defaultdict(list)
     for feat in cds_features:
         cds_by_tid[feat["attributes"]["transcript_id"]].append(feat)
 
-    # Collect transcript + exon lines from original GTF
+    # Collect transcript + exon lines from original GTF (preserve transcript order)
     transcript_lines = OrderedDict()
     exons_by_tid = defaultdict(list)
 
@@ -140,45 +135,57 @@ def annotate_gtf_with_cds(gtf_path, cds_features, output_path):
                 continue
 
             if ftype == "transcript":
-                # keep first occurrence to preserve input order
                 if tid not in transcript_lines:
                     transcript_lines[tid] = line
             elif ftype == "exon":
                 exons_by_tid[tid].append(parts)
 
-    # Write cleaned, sorted output
+    # Write cleaned, interleaved output
     with open(output_path, "wt", encoding="utf-8") as fout:
         for tid, t_line in transcript_lines.items():
-            # 1) transcript
+            # 1) transcript header
             fout.write(t_line)
 
-            # 2) exons sorted by genomic start (col 4)
-            exons = exons_by_tid.get(tid, [])
-            for exon in sorted(exons, key=lambda p: int(p[3])):
-                fout.write("\t".join(exon) + "\n")
+            # 2) build a combined list of exon + predicted CDS rows, then sort by start
+            combined_rows = []
 
-            # 3) predicted CDS (if any), sorted by start
-            if tid in cds_by_tid:
-                for cds in sorted(cds_by_tid[tid], key=lambda x: int(x["start"])):
-                    a = cds["attributes"]
-                    attr_items = [
-                        f'gene_id "{a.get("gene_id","")}"',
-                        f'transcript_id "{a.get("transcript_id","")}"'
-                    ]
-                    if a.get("gene_name"):
-                        attr_items.append(f'gene_name "{a["gene_name"]}"')
-                    if a.get("ref_gene_id"):
-                        attr_items.append(f'ref_gene_id "{a["ref_gene_id"]}"')
+            # add exons from original (tag so we can break ties consistently)
+            for exon in exons_by_tid.get(tid, []):
+                combined_rows.append((
+                    int(exon[3]),
+                    0,
+                    "\t".join(exon) + "\n"
+                ))
 
-                    cds_line = [
-                        cds["seqid"],
-                        cds.get("source", "ORFannotate"),
-                        "CDS",
-                        str(cds["start"]),
-                        str(cds["end"]),
-                        cds.get("score", "."),
-                        cds["strand"],
-                        cds.get("frame", "."),
-                        "; ".join(attr_items) + ";"
-                    ]
-                    fout.write("\t".join(cds_line) + "\n")
+            # add predicted CDS (converted to GTF row strings)
+            for cds in cds_by_tid.get(tid, []):
+                a = cds["attributes"]
+                attr_items = [
+                    f'gene_id "{a.get("gene_id","")}"',
+                    f'transcript_id "{a.get("transcript_id","")}"'
+                ]
+                if a.get("gene_name"):
+                    attr_items.append(f'gene_name "{a["gene_name"]}"')
+                if a.get("ref_gene_id"):
+                    attr_items.append(f'ref_gene_id "{a["ref_gene_id"]}"')
+
+                cds_line = [
+                    cds["seqid"],
+                    cds.get("source", "ORFannotate"),
+                    "CDS",
+                    str(cds["start"]),
+                    str(cds["end"]),
+                    cds.get("score", "."),
+                    cds["strand"],
+                    cds.get("frame", "."),
+                    "; ".join(attr_items) + ";"
+                ]
+                combined_rows.append((
+                    int(cds["start"]),
+                    1,
+                    "\t".join(cds_line) + "\n"
+                ))
+
+            # sort and write
+            for _, _, row in sorted(combined_rows, key=lambda x: (x[0], x[1])):
+                fout.write(row)

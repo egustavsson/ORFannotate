@@ -15,6 +15,9 @@ from orfannotate.gtf_annotation import build_cds_features, annotate_gtf_with_cds
 from orfannotate.summarise import generate_summary
 from orfannotate.utils import count_unique_transcripts, validate_inputs, keep_tx_and_exons
 
+# version
+from orfannotate import __version__
+
 # Path relative to ORFannotate for Snakemake, Nextflow workflows, etc.
 MODULE_DIR = Path(__file__).resolve().parent
 DATA_DIR = MODULE_DIR / "data"
@@ -82,6 +85,10 @@ def main():
                         help="Species to use for CPAT model (default: human)")
     parser.add_argument("--coding-cutoff", type=float, default=None,
                         help="CPAT cutoff for classifying coding vs noncoding transcripts")
+    parser.add_argument(
+    "--version",
+    action="version",
+    version=f"ORFannotate {__version__}")
     args = parser.parse_args()
 
     gtf_path = args.gtf

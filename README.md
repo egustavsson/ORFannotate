@@ -4,6 +4,8 @@
 
 # ORFannotate
 
+[![DOI](https://zenodo.org/badge/958608941.svg)](https://doi.org/10.5281/zenodo.16812866)
+
 `ORFannotate` is a Python-based command-line tool for identifying coding open reading frames (ORFs) in transcript annotations. It augments GTF/GFF files with precise CDS features and generates a comprehensive transcript-level summary, including coding classification (CPAT score), Kozak context strength, 5′ and 3′ UTR lengths, splice junction distribution, and predicted nonsense-mediated decay (NMD) sensitivity.
 
 Designed for fast and reproducible transcriptome analysis, `ORFannotate` supports multiple species with pre-trained CPAT models, requires minimal dependencies, and integrates seamlessly into bioinformatics workflows.

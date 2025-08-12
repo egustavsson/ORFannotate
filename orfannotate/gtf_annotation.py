@@ -1,12 +1,12 @@
+import re
 import gffutils
 import logging
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 logger = logging.getLogger(__name__)
 
-# Create a dictionary that lets us fetch a transcript feature in
-# O(1) time by either its full ID (including version) or the ID
-# without the version suffix.
+# Help functions
+
 def _build_tx_lookup(db):
     
     lut = {}
@@ -16,7 +16,25 @@ def _build_tx_lookup(db):
         lut[tid_full.split(".")[0]] = tx
     return lut
 
-# Convert the best CPAT ORF on each transcript to one CDS record per overlapping exon.
+
+def _extract_tid_from_attrs(attr_field: str):
+    
+    # GTF style
+    m = re.search(r'\btranscript_id\s+"([^"]+)"', attr_field)
+    if m:
+        return m.group(1)
+
+    # Very simple GFF3-style handling
+    m = re.search(r'(?:^|;)\s*Parent=([^;]+)', attr_field)
+    if m:
+        parent = m.group(1)
+        # strip optional transcript: prefix
+        return re.sub(r'^(?:transcript:)?', '', parent)
+
+    return None
+
+# Main functions
+
 def build_cds_features(gtf_db, best_orfs):
     """
     Converts best CPAT ORFs to CDS features aligned to exon structures in a GTF database.
@@ -28,7 +46,6 @@ def build_cds_features(gtf_db, best_orfs):
     Returns:
     - List of CDS feature dicts, suitable for annotation in GTF.
     """
-    
     tx_lookup = _build_tx_lookup(gtf_db)
     cds_features = []
 
@@ -50,10 +67,12 @@ def build_cds_features(gtf_db, best_orfs):
             exon_tr_start = transcript_pos
             exon_tr_end = transcript_pos + exon_len - 1
 
+            # No overlap with CDS in transcript coordinates
             if exon_tr_end < cds_start_tr or exon_tr_start > cds_end_tr:
                 transcript_pos += exon_len
                 continue
 
+            # Overlap in transcript coords
             cds_exon_start_tr = max(exon_tr_start, cds_start_tr)
             cds_exon_end_tr = min(exon_tr_end, cds_end_tr)
 
@@ -86,54 +105,80 @@ def build_cds_features(gtf_db, best_orfs):
     return cds_features
 
 
-
 def annotate_gtf_with_cds(gtf_path, cds_features, output_path):
-    cds_by_transcript = defaultdict(list)
+    """
+    Write a cleaned GTF that contains, per transcript:
+      - transcript line (preserving original line)
+      - all exon lines (sorted by genomic start)
+      - all ORFannotate-predicted CDS lines (sorted by genomic start)
+
+    Everything else from the original (start_codon, stop_codon, UTR, CDS from
+    other sources, etc.) is removed. Transcripts with no predicted CDS are
+    kept as transcript + exon only.
+    """
+    # Group predicted CDS by transcript_id
+    cds_by_tid = defaultdict(list)
     for feat in cds_features:
-        cds_by_transcript[feat['attributes']['transcript_id']].append(feat)
+        cds_by_tid[feat["attributes"]["transcript_id"]].append(feat)
 
-    written_cds_for = set()
+    # Collect transcript + exon lines from original GTF
+    transcript_lines = OrderedDict()
+    exons_by_tid = defaultdict(list)
 
-    with open(gtf_path) as fin, open(output_path, "w") as fout:
+    with open(gtf_path, "rt", encoding="utf-8") as fin:
         for line in fin:
-            stripped = line.strip()
-            if stripped == "" or stripped.startswith("#"):
-                fout.write(line)
+            if not line.strip() or line.startswith("#"):
                 continue
-
-            parts = stripped.split("\t")
+            parts = line.rstrip("\n").split("\t")
             if len(parts) != 9:
-                fout.write(line)
                 continue
 
-            feature_type = parts[2]
-            attributes = parts[8]
-            tid = None
-            for attr in attributes.split(";"):
-                attr = attr.strip()
-                if attr.startswith("transcript_id"):
-                    tid = attr.split(" ")[1].replace('"', '')
-                    break
+            ftype = parts[2]
+            attrs = parts[8]
+            tid = _extract_tid_from_attrs(attrs)
+            if not tid:
+                continue
 
-            fout.write(line)
+            if ftype == "transcript":
+                # keep first occurrence to preserve input order
+                if tid not in transcript_lines:
+                    transcript_lines[tid] = line
+            elif ftype == "exon":
+                exons_by_tid[tid].append(parts)
 
-            if feature_type == "transcript" and tid in cds_by_transcript and tid not in written_cds_for:
-                for cds in sorted(cds_by_transcript[tid], key=lambda x: x['start']):
-                    cds_attrs = [
-                        f'gene_id "{cds["attributes"]["gene_id"]}"',
-                        f'transcript_id "{cds["attributes"]["transcript_id"]}"'
+    # Write cleaned, sorted output
+    with open(output_path, "wt", encoding="utf-8") as fout:
+        for tid, t_line in transcript_lines.items():
+            # 1) transcript
+            fout.write(t_line)
+
+            # 2) exons sorted by genomic start (col 4)
+            exons = exons_by_tid.get(tid, [])
+            for exon in sorted(exons, key=lambda p: int(p[3])):
+                fout.write("\t".join(exon) + "\n")
+
+            # 3) predicted CDS (if any), sorted by start
+            if tid in cds_by_tid:
+                for cds in sorted(cds_by_tid[tid], key=lambda x: int(x["start"])):
+                    a = cds["attributes"]
+                    attr_items = [
+                        f'gene_id "{a.get("gene_id","")}"',
+                        f'transcript_id "{a.get("transcript_id","")}"'
                     ]
-                    if cds["attributes"].get("gene_name"):
-                        cds_attrs.append(f'gene_name "{cds["attributes"]["gene_name"]}"')
-                    if cds["attributes"].get("ref_gene_id"):
-                        cds_attrs.append(f'ref_gene_id "{cds["attributes"]["ref_gene_id"]}"')
+                    if a.get("gene_name"):
+                        attr_items.append(f'gene_name "{a["gene_name"]}"')
+                    if a.get("ref_gene_id"):
+                        attr_items.append(f'ref_gene_id "{a["ref_gene_id"]}"')
 
                     cds_line = [
-                        cds['seqid'], cds['source'], cds['feature'],
-                        str(cds['start']), str(cds['end']), cds['score'],
-                        cds['strand'], cds['frame'],
-                        "; ".join(cds_attrs) + ";"
+                        cds["seqid"],
+                        cds.get("source", "ORFannotate"),
+                        "CDS",
+                        str(cds["start"]),
+                        str(cds["end"]),
+                        cds.get("score", "."),
+                        cds["strand"],
+                        cds.get("frame", "."),
+                        "; ".join(attr_items) + ";"
                     ]
                     fout.write("\t".join(cds_line) + "\n")
-
-                written_cds_for.add(tid)

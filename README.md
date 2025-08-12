@@ -229,7 +229,10 @@ ORFannotate/
 │   ├── test_imports.py
 │   ├── test_kozak.py
 │   ├── test_nmd.py
-│   └── test_orf_filter.py
+│   ├── test_orf_filter.py
+|   └── test_data/
+|       ├── toy.fa
+|       └── toy.gtf
 │
 ├── data/                         # CPAT model files (hexamer and logitModel)
 │   ├── Human_Hexamer.tsv

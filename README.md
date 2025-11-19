@@ -23,6 +23,7 @@ Designed for fast and reproducible transcriptome analysis, `ORFannotate` support
   - Exon and UTR junction structure
   - UTR lengths
   - NMD prediction
+  - uORF information
 - Generate fasta files with transcript, CDS, UTR (5'/3') and protein sequences
 
 ---

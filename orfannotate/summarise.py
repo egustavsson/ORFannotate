@@ -24,7 +24,7 @@ logging.basicConfig(format="%(levelname)s:%(name)s:%(message)s", level=logging.I
 def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, coding_cutoff=0.364, junctions_by_tx=None):
     output_path = Path(output_path)
     output_dir = output_path.parent
-
+    
     if junctions_by_tx is None:
         raise ValueError("junctions_by_tx dictionary must be provided for summarisation")
 
@@ -72,8 +72,9 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
     all_tx_ids &= set(transcript_seqs.keys())
 
     children = db.children
-
+    
     for tid in tqdm(sorted(all_tx_ids), desc="Processing transcripts"):
+        
 
         has_orf = tid in best_orfs
         orf_data = best_orfs.get(tid, None)
@@ -185,6 +186,11 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
                 utr5_records.append(SeqRecord(Seq(utr5_seq), id=tid, description=desc))
             if utr3_len != "NA":
                 utr3_records.append(SeqRecord(Seq(utr3_seq), id=tid, description=desc))
+        
+        ## --------------------- SG
+        has_uORF = orf_data["has_uORF"]
+        coding_prob_uORF = orf_data["coding_prob_uORF"]
+        ## ---------------------
 
         summary.append({
             "transcript_id": tid,
@@ -208,6 +214,8 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
             "NMD_sensitive": nmd_flag,
             "kozak_strength": kozak_strength,
             "kozak_sequence": kozak_seq,
+            "has_uORF": has_uORF,
+            "coding_prob_best_uORF": coding_prob_uORF
         })
 
     pd.DataFrame(summary).to_csv(output_path, sep="\t", index=False)

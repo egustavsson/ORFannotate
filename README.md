@@ -147,29 +147,31 @@ After a successful run, the following files will be saved in `<output_dir>`:
 
 The final output summary file `ORFannotate_summary.tsv` contains one row per transcript and includes:
 
-| Column              | Description |
-|---------------------|-------------|
-| `transcript_id`     | Transcript identifier |
-| `gene_id`           | Associated gene ID |
-| `chrom`             | Chromosome name |
-| `strand`            | `+` or `-` |
-| `transcript_start`  | Transcript start position (genomic) |
-| `transcript_end`    | Transcript end position (genomic) |
-| `has_orf`           | `TRUE` if an ORF was predicted, `FALSE` otherwise |
-| `orf_nt_len`        | ORF length in nucleotides (only if coding) |
-| `orf_aa_len`        | ORF length in amino acids (only if coding) |
-| `coding_prob`       | CPAT-predicted coding probability |
-| `coding_class`      | `coding` or `noncoding` based on cutoff |
-| `total_junctions`   | Total number of exon–exon junctions in the transcript |
-| `utr5_junctions`    | Number of junctions occurring fully within the 5′ UTR (only for coding) |
-| `cds_junctions`     | Number of junctions overlapping or inside the CDS region (only for coding) |
-| `utr3_junctions`    | Number of junctions occurring fully within the 3′ UTR (only for coding) |
-| `stop_to_last_EJ`   | Distance from stop codon to last exon junction |
-| `NMD_sensitive`     | `TRUE` if predicted to undergo NMD, else `FALSE` |
-| `kozak_strength`    | `strong`, `moderate`, `weak`, or `NA` (only if coding) |
-| `kozak_sequence`    | Kozak sequence around start codon (if available) |
-| `utr5_nt_len`       | 5′ UTR length in nucleotides (only if coding) |
-| `utr3_nt_len`       | 3′ UTR length in nucleotides (only if coding) |
+| Column                        | Description |
+|-------------------------------|-------------|
+| `transcript_id`               | Transcript identifier |
+| `gene_id`                     | Associated gene ID |
+| `chrom`                       | Chromosome name |
+| `strand`                      | `+` or `-` |
+| `transcript_start`            | Transcript start position (genomic) |
+| `transcript_end`              | Transcript end position (genomic) |
+| `has_orf`                     | `TRUE` if an ORF was predicted, `FALSE` otherwise |
+| `orf_nt_len`                  | ORF length in nucleotides (only if coding) |
+| `orf_aa_len`                  | ORF length in amino acids (only if coding) |
+| `coding_prob`                 | CPAT-predicted coding probability |
+| `coding_class`                | `coding` or `noncoding` based on cutoff |
+| `total_junctions`             | Total number of exon–exon junctions in the transcript |
+| `utr5_junctions`              | Number of junctions occurring fully within the 5′ UTR (only for coding) |
+| `cds_junctions`               | Number of junctions overlapping or inside the CDS region (only for coding) |
+| `utr3_junctions`              | Number of junctions occurring fully within the 3′ UTR (only for coding) |
+| `stop_to_last_EJ`             | Distance from stop codon to last exon junction |
+| `NMD_sensitive`               | `TRUE` if predicted to undergo NMD, else `FALSE` |
+| `kozak_strength`              | `strong`, `moderate`, `weak`, or `NA` (only if coding) |
+| `kozak_sequence`              | Kozak sequence around start codon (if available) |
+| `utr5_nt_len`                 | 5′ UTR length in nucleotides (only if coding) |
+| `utr3_nt_len`                 | 3′ UTR length in nucleotides (only if coding) |
+| `has_uORF`                    | `TRUE` if an uORF was predicted, `FALSE` otherwise |
+| `coding_prob_best_uORF`       | CPAT-predicted coding probability of the best uORF |
 
 ---
 

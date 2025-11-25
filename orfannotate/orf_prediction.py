@@ -18,7 +18,7 @@ def run_cpat(transcript_fasta, output_dir, hexamer_path, logit_model_path, force
         "-x", os.path.abspath(hexamer_path),
         "-d", os.path.abspath(logit_model_path),
         "--top-orf=5",
-        "--min-orf=75",
+        "--min-orf=30",
         "--best-orf=p",
         "--log-file", os.path.join(output_dir, "CPAT.log"),
         "-o", output_prefix

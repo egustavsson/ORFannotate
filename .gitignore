@@ -26,3 +26,6 @@ output/
 
 # IDEs and notebooks
 .vscode/
+slurm
+tests
+scripts

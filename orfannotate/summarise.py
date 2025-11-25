@@ -2,6 +2,7 @@ import logging
 import json
 import tempfile
 import argparse
+import os
 from pathlib import Path
 from typing import List, Tuple
 import pandas as pd
@@ -14,6 +15,8 @@ import gffutils
 # Internal modules
 from orfannotate.nmd import predict_nmd
 from orfannotate.kozak import score_kozak
+from orfannotate.orf_prediction import run_cpat
+from orfannotate.orf_filter import get_best_orfs_by_cpat
 from orfannotate.utils import load_transcript_sequences, map_junctions_to_tx
 
 LOGGER = logging.getLogger(__name__)
@@ -21,10 +24,10 @@ logging.basicConfig(format="%(levelname)s:%(name)s:%(message)s", level=logging.I
 
 # Main function
 
-def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, coding_cutoff=0.364, junctions_by_tx=None):
+def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, output_dir, hexamer_path, logit_model_path, coding_cutoff=0.364, junctions_by_tx=None):
     output_path = Path(output_path)
     output_dir = output_path.parent
-    
+
     if junctions_by_tx is None:
         raise ValueError("junctions_by_tx dictionary must be provided for summarisation")
 
@@ -74,7 +77,8 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
     children = db.children
     
     for tid in tqdm(sorted(all_tx_ids), desc="Processing transcripts"):
-        
+
+        print(tid)
 
         has_orf = tid in best_orfs
         orf_data = best_orfs.get(tid, None)
@@ -139,33 +143,57 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
         # Map to transcript coordinates
         junctions_tx = map_junctions_to_tx(junctions_genomic, exons)
 
-        # UTR classification
+        #utr_features = []
+
+        # UTR junction count 
         if coding_class == "coding" and isinstance(orf_start, int) and isinstance(orf_end_tx, int):
             utr5_junctions = cds_junctions = utr3_junctions = 0
             for donor_tx, acceptor_tx in junctions_tx:
+                print(junctions_tx)
                 if strand == '+':
                     if donor_tx <= orf_start - 1 and acceptor_tx <= orf_start - 1:
                         utr5_junctions += 1
+                        # utr_features.append({
+                        #     "type": "five_prime_utr",
+                        #     "start": donor_tx,
+                        #     "end": acceptor_tx
+                        # })
                     elif donor_tx >= orf_end_tx + 1 and acceptor_tx >= orf_end_tx + 1:
                         utr3_junctions += 1
+                        # utr_features.append({
+                        #     "type": "three_prime_utr",
+                        #     "start": donor_tx,
+                        #     "end": acceptor_tx
+                        # })
                     else:
                         cds_junctions += 1
                 else:  # negative strand: 5' UTR is after ORF end
                     if donor_tx >= orf_end_tx + 1 and acceptor_tx >= orf_end_tx + 1:
                         utr5_junctions += 1
+                        # utr_features.append({
+                        #     "type": "five_prime_utr",
+                        #     "start": acceptor_tx,
+                        #     "end": donor_tx
+                        # })
                     elif donor_tx <= orf_start - 1 and acceptor_tx <= orf_start - 1:
                         utr3_junctions += 1
+                        # utr_features.append({
+                        #     "type": "three_prime_utr",
+                        #     "start": acceptor_tx,
+                        #     "end": donor_tx
+                        # })
                     else:
                         cds_junctions += 1
         else:
             utr5_junctions = cds_junctions = utr3_junctions = "NA"
-
+        
         if has_orf and orf_end_gen is not None and junctions_genomic:
             last_j = junctions_genomic[-1][0] if strand == '+' else junctions_genomic[0][1]
             stop_to_last_ej = last_j - orf_end_gen if strand == '+' else orf_end_gen - last_j
         else:
             stop_to_last_ej = "NA"
-
+        
+        
         nmd_flag = predict_nmd(orf_end_gen, junctions_genomic, strand) if coding_class == "coding" else "FALSE"
 
         utr5_seq = utr3_seq = "NA"
@@ -187,10 +215,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
             if utr3_len != "NA":
                 utr3_records.append(SeqRecord(Seq(utr3_seq), id=tid, description=desc))
         
-        ## --------------------- SG
-        has_uORF = orf_data["has_uORF"]
-        coding_prob_uORF = orf_data["coding_prob_uORF"]
-        ## ---------------------
+        
 
         summary.append({
             "transcript_id": tid,
@@ -213,9 +238,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
             "stop_to_last_EJ": stop_to_last_ej,
             "NMD_sensitive": nmd_flag,
             "kozak_strength": kozak_strength,
-            "kozak_sequence": kozak_seq,
-            "has_uORF": has_uORF,
-            "coding_prob_best_uORF": coding_prob_uORF
+            "kozak_sequence": kozak_seq
         })
 
     pd.DataFrame(summary).to_csv(output_path, sep="\t", index=False)
@@ -224,6 +247,74 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, codi
     SeqIO.write(protein_records, output_dir / "protein.fa", "fasta")
     SeqIO.write(utr5_records, output_dir / "utr5.fa", "fasta")
     SeqIO.write(utr3_records, output_dir / "utr3.fa", "fasta")
+
+    ## --------------------- start SG
+
+    #-----------------------------------------------------
+    # 1) Run CPAT per-transcript only in 5'UTR sequences
+    #-----------------------------------------------------
+
+    # Create directory to store CPAT uORF results
+    uorf_cpat_dir = os.path.join(output_dir, "CPAT_uORF")
+    os.makedirs(uorf_cpat_dir, exist_ok=True)
+
+    # Run CPAT in current 5'UTR sequences alone
+    run_cpat(os.path.join(output_dir / "utr5.fa"), uorf_cpat_dir, hexamer_path, logit_model_path)
+
+    # Get best uORF 
+    uorf_cpat_results = os.path.join(uorf_cpat_dir, "cpat.ORF_prob.tsv")
+    uorf_debug_output = os.path.join(uorf_cpat_dir, "cpat_debug.tsv")
+    
+    # Extract best uORF values per transcript
+    best_uorf = get_best_orfs_by_cpat(uorf_cpat_results, debug_output_path=uorf_debug_output)
+  
+    # ------------------------------------------------------
+    # 2) Ensure only non-overlapping uORFs are selected
+    # ------------------------------------------------------
+    
+    # Filter uORFs so that only TRUE uORFs remain (end < canonical ORF start)
+    filtered_uorfs = {}
+
+    for tx, uorf in best_uorf.items():
+        canon_orf = best_orfs.get(tx)
+        if canon_orf is None:
+            # no canonical ORF found > skip
+            filtered_uorfs[tx] = None
+            continue
+
+        # Only keep uORFs ending before the canonical ORF start and with a coding probability above the cutoff
+        if uorf["end"] < canon_orf["start"] and uorf["coding_prob"] > coding_cutoff:
+            filtered_uorfs[tx] = uorf
+        else:
+            filtered_uorfs[tx] = None
+        
+    # If many uORFs passed the minimum criteria per transcript, we pick up that with the highest coding probability value
+    selected_uorfs = {}
+    for tx, uorfs in filtered_uorfs.items():
+        if uorfs:
+            # Ensure it's a list
+            if isinstance(uorfs, dict):
+                uorfs = [uorfs]
+            # Pick the maximum coding probability
+            selected_uorfs[tx] = max(u["coding_prob"] for u in uorfs)
+        else:
+            selected_uorfs[tx] = None
+
+    # ------------------------------------------------------
+    # 3) Incorporate selected uRFs to the 'summary.tsv' file
+    # ------------------------------------------------------
+
+    # Load final summary.tsv file
+    orf_summary = pd.read_csv(output_path, sep='\t')    
+
+    # Update the final 'summary.tsv': add the new two uORF columns
+    orf_summary["has_uORF"] = orf_summary["transcript_id"].map(lambda x: selected_uorfs.get(x) is not None)
+    orf_summary["coding_prob_best_uORF"] = orf_summary["transcript_id"].map(selected_uorfs)
+        
+    # Save results
+    pd.DataFrame(orf_summary).to_csv(output_path, sep="\t", index=False)
+    
+    ## --------------------- end SG
 
 
 if __name__ == "__main__":

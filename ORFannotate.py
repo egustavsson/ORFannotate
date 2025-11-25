@@ -166,7 +166,7 @@ def main():
     logger.info("Step 4: Parsing ORF results...")
     cpat_results = os.path.join(cpat_dir, "cpat.ORF_prob.tsv")
     debug_output = os.path.join(cpat_dir, "cpat_debug.tsv")
-    best_orfs = get_best_orfs_by_cpat(cpat_results, coding_cutoff, debug_output_path=debug_output)
+    best_orfs = get_best_orfs_by_cpat(cpat_results, debug_output_path=debug_output)
  
     coding_orfs = {tid: info for tid, info in best_orfs.items() if info["coding_prob"] >= coding_cutoff}
     logger.info(f"Selected {len(coding_orfs):,} transcripts classified as coding (cutoff = {coding_cutoff})")
@@ -214,7 +214,7 @@ def main():
 
     junctions_mem = _collect_junctions(annotated_db)
     summary_tsv = os.path.join(output_dir, "ORFannotate_summary.tsv")
-    generate_summary(best_orfs, transcript_fasta, annotated_db, summary_tsv, coding_cutoff=coding_cutoff, junctions_by_tx=junctions_mem)
+    generate_summary(best_orfs, transcript_fasta, annotated_db, summary_tsv, coding_cutoff=coding_cutoff, junctions_by_tx=junctions_mem, output_dir=output_dir, hexamer_path=hexamer_path, logit_model_path=logit_model_path)
 
     try:
         annotated_db.conn.close()

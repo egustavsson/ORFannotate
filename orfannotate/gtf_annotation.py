@@ -63,14 +63,11 @@ def build_cds_features(gtf_db, best_orfs):
         transcript_pos = 1
 
         for exon in exons:
+            
             exon_len = exon.end - exon.start + 1
             exon_tr_start = transcript_pos
             exon_tr_end = transcript_pos + exon_len - 1
-
-            # No overlap with CDS in transcript coordinates
-            if exon_tr_end < cds_start_tr or exon_tr_start > cds_end_tr:
-                transcript_pos += exon_len
-                continue
+            
 
             # Overlap in transcript coords
             cds_exon_start_tr = max(exon_tr_start, cds_start_tr)
@@ -83,26 +80,79 @@ def build_cds_features(gtf_db, best_orfs):
                 cds_end_gen = exon.end - (cds_exon_start_tr - exon_tr_start)
                 cds_start_gen = exon.end - (cds_exon_end_tr - exon_tr_start)
 
+
+            common_attrs = {
+                "gene_id":      tx.attributes.get("gene_id", [""])[0],
+                "transcript_id": tid,
+                "gene_name":    tx.attributes.get("gene_name", [""])[0],
+                "ref_gene_id":  tx.attributes.get("ref_gene_id", [""])[0],
+            }
+
+            # Full UTR exon & CDS definition
+            if exon_tr_end < cds_start_tr:
+                feature="five_prime_utr"
+                start_coord = min(exon.start, exon.end)
+                end_coord = max(exon.start, exon.end)
+            elif exon_tr_start > cds_end_tr:
+                feature="three_prime_utr"
+                start_coord = min(exon.start, exon.end)
+                end_coord = max(exon.start, exon.end)
+            else:
+                feature="CDS"
+                start_coord=min(cds_start_gen, cds_end_gen)
+                end_coord=max(cds_start_gen, cds_end_gen)
+                
+                if ((exon.end-end_coord) > 0) or ((exon.start-start_coord) < 0):
+
+                    # Partial UTR exon definition
+                    if (tx.strand == "-" and ((exon.start-start_coord) < 0)):                             
+                        utr_feature="three_prime_utr"
+                        utr_start_coord=cds_start_gen-abs((exon.start-start_coord))
+                        utr_end_coord=cds_start_gen+1
+                    elif (tx.strand == "-" and ((exon.end-end_coord) > 0)):
+                        utr_feature="five_prime_utr"
+                        utr_start_coord = cds_end_gen - 1
+                        utr_end_coord = cds_end_gen + (exon.end-end_coord)
+                    elif (tx.strand == "+" and ((exon.start-start_coord) < 0)):
+                        utr_feature="five_prime_utr"
+                        utr_start_coord=cds_start_gen - abs((exon.start-start_coord))
+                        utr_end_coord=cds_start_gen - 1                     
+                    elif (tx.strand == "+" and ((exon.end-end_coord) > 0)):
+                        utr_feature="three_prime_utr"
+                        utr_start_coord=cds_end_gen + 1
+                        utr_end_coord=cds_end_gen + (exon.end-end_coord)
+                        
+                    cds_features.append({
+                        "seqid": exon.seqid,
+                        "source": "ORFannotate",
+                        "feature": utr_feature,
+                        "start": utr_start_coord,
+                        "end": utr_end_coord,
+                        "score": ".",
+                        "strand": tx.strand,
+                        "frame": ".",
+                        "attributes": common_attrs,
+                    })
+                
+            
             cds_features.append({
-                "seqid": exon.seqid,
-                "source": "ORFannotate",
-                "feature": "CDS",
-                "start": min(cds_start_gen, cds_end_gen),
-                "end": max(cds_start_gen, cds_end_gen),
-                "score": ".",
-                "strand": tx.strand,
-                "frame": ".",
-                "attributes": {
-                    "gene_id": tx.attributes.get("gene_id", [""])[0],
-                    "transcript_id": tid,
-                    "gene_name": tx.attributes.get("gene_name", [""])[0],
-                    "ref_gene_id": tx.attributes.get("ref_gene_id", [""])[0],
-                },
-            })
+                    "seqid": exon.seqid,
+                    "source": "ORFannotate",
+                    "feature": feature,
+                    "start": start_coord,
+                    "end": end_coord,
+                    "score": ".",
+                    "strand": tx.strand,
+                    "frame": ".",
+                    "attributes": common_attrs,
+                })
             transcript_pos += exon_len
 
     logger.debug("Built %d CDS records", len(cds_features))
+    cds_features.sort(key=lambda f: (f["start"], f["end"]))
+
     return cds_features
+
 
 
 def annotate_gtf_with_cds(gtf_path, cds_features, output_path):
@@ -172,7 +222,7 @@ def annotate_gtf_with_cds(gtf_path, cds_features, output_path):
                 cds_line = [
                     cds["seqid"],
                     cds.get("source", "ORFannotate"),
-                    "CDS",
+                    str(cds["feature"]),
                     str(cds["start"]),
                     str(cds["end"]),
                     cds.get("score", "."),

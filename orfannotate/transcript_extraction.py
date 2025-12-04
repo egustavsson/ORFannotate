@@ -2,8 +2,10 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio import SeqIO
 from pyfaidx import Fasta
-import gffutils
+import gffutils 
 import os
+
+from orfannotate.utils import _create_db
 
 
 def extract_transcripts_from_gtf(gtf_db_or_path, genome_fa, out_fasta):
@@ -20,26 +22,8 @@ def extract_transcripts_from_gtf(gtf_db_or_path, genome_fa, out_fasta):
 
             if not os.path.exists(db_path):
                 
-                gffutils.create_db(
-                    gtf_db_or_path,
-                    dbfn=db_path,
-                    force=True,
-                    keep_order=True,
-                    disable_infer_transcripts=True,
-                    disable_infer_genes=True,
-                    merge_strategy="create_unique",
-                    sort_attribute_values=True,
-                    pragmas={
-                        "journal_mode": "OFF",
-                        "synchronous": "OFF",
-                        "temp_store": "MEMORY",
-                    },
-                    id_spec={
-                        "transcript": "transcript_id",
-                        "exon": "transcript_id",
-                        "CDS": "transcript_id",
-                    },
-                )
+                # Create DB from GTF using GFFUtils
+                _create_db(gtf_db_or_path)
 
         db = gffutils.FeatureDB(db_path)
 

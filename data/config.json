@@ -3,22 +3,34 @@
     "human": {
       "hexamer": "Human_Hexamer.tsv",
       "model": "Human_logitModel.RData",
-      "cutoff": 0.364
+      "cutoff": 0.364,
+      "top_orf": 5,
+      "min_length_orf": 70,
+      "min_length_uorf": 50
     },
     "mouse": {
       "hexamer": "Mouse_Hexamer.tsv",
       "model": "Mouse_logitModel.RData",
-      "cutoff": 0.44
+      "cutoff": 0.44,
+      "top_orf": 5,
+      "min_length_orf": 70,
+      "min_length_uorf": 30
     },
     "fly": {
       "hexamer": "Fly_Hexamer.tsv",
       "model": "Fly_logitModel.RData",
-      "cutoff": 0.39
+      "cutoff": 0.39,
+      "top_orf": 5,
+      "min_length_orf": 70,
+      "min_length_uorf": 30
     },
     "zebrafish": {
       "hexamer": "Zebrafish_Hexamer.tsv",
       "model": "Zebrafish_logitModel.RData",
-      "cutoff": 0.38
+      "cutoff": 0.38,
+      "top_orf": 5,
+      "min_length_orf": 70,
+      "min_length_uorf": 30
     }
   }
 }

@@ -1,9 +1,12 @@
 import os
 import re
+import shutil
 import logging
 import gffutils
+import subprocess
+import pandas as pd
 from pathlib import Path
-from turtle import pd
+from collections import defaultdict
 from Bio import SeqIO
 from rich.text import Text
 from rich.progress import (
@@ -11,40 +14,19 @@ from rich.progress import (
     TimeElapsedColumn,
 )
 
-TX_RE = re.compile(r'transcript_id\s+"([^"]+)"')
-
 
 def _keep_tx_and_exons(feat):
     """Filter GTF features to only keep transcript and exon rows."""
     return feat if feat.featuretype in {"transcript", "exon"} else False
 
-
 def _load_transcript_sequences(transcript_fasta: Path):
     """Load transcript sequences into a dictionary keyed by transcript ID."""
     return SeqIO.to_dict(SeqIO.parse(str(transcript_fasta), "fasta"))
 
-
-# Collect splice junctions into memory
-def _collect_junctions(gtf_db):
-    junctions = {}
-    for tx in gtf_db.features_of_type("transcript"):
-        exons = list(gtf_db.children(tx, featuretype="exon", order_by="start"))
-        if len(exons) > 1:
-            junctions[tx.id] = [(exons[i].end, exons[i+1].start) for i in range(len(exons)-1)]
-    return junctions
-
-
-def _count_unique_transcripts(gtf_path: str) -> int:
-    """Count unique transcript IDs in a GTF file."""
-    ids = set()
-    with open(gtf_path) as fh:
-        for line in fh:
-            if line.startswith("#") or "\ttranscript\t" not in line:
-                continue
-            m = TX_RE.search(line)
-            if m:
-                ids.add(m.group(1))
-    return len(ids)
+def _count_unique_transcripts(path):
+    cmd = f"awk '$3 == \"transcript\" || $3 == \"mRNA\" || $3 == \"lnc_RNA\" || $3 == \"pseudogenic_transcript\" || $3 == \"miRNA\" || $3 == \"mRNA\" || $3 == \"snRNA\" || $3 == \"transcript\" || $3 == \"unconfirmed_transcript\" || $3 == \"snoRNA\" || $3 == \"scRNA\" || $3 == \"rRNA\" || $3 == \"processed_transcript\" || $3 == \"tRNA\" {{print}}' {path} | wc -l"
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    return int(result.stdout.strip())
 
 def _validate_inputs(gtf_path: str, genome_fasta: str):
     """Check that required input files exist and are valid."""
@@ -58,7 +40,7 @@ def _validate_inputs(gtf_path: str, genome_fasta: str):
         for line in fh:
             if line.startswith("#"):
                 continue
-            if "\ttranscript\t" in line:
+            if "\ttranscript\t" in line or "\tmRNA\t" in line:
                 has_transcripts = True
             elif "\texon\t" in line:
                 has_exons = True
@@ -66,7 +48,6 @@ def _validate_inputs(gtf_path: str, genome_fasta: str):
                 break
     if not has_transcripts or not has_exons:
         raise ValueError("GTF file must contain both 'transcript' and 'exon' features.")
-
 
 def _map_junctions_to_tx(junctions_genomic, exons):
     """Map genomic splice junction coordinates to transcript coordinates."""
@@ -91,7 +72,7 @@ def _map_junctions_to_tx(junctions_genomic, exons):
 def _create_db(gtf_path, only_exons=True):
     """Create a DB using GFF utils."""
     annotated_db = gffutils.create_db(
-            gtf_path,
+            str(gtf_path) ,
             dbfn=":memory:",
             force=True,
             keep_order=True,
@@ -104,74 +85,154 @@ def _create_db(gtf_path, only_exons=True):
                 "journal_mode": "OFF",
                 "synchronous": "OFF",
                 "temp_store": "MEMORY",
-                "chache_size": -1000000
+                "cache_size": -1000000
             },
             id_spec=None
         )
-
     return annotated_db
 
 def _print_top_database_info(db):
-    
-    print("Connecting....")
+    """
+    Print the first 5 rows of the gffutils database for debugging.
+    :param db: Database object created by gffutils
+    """
+
     conn = db.conn  # connection gffutils uses internally
     
-    print("Connection stablished")
+    try:
+        rows = conn.execute("SELECT * FROM features LIMIT 10").fetchall()
+    except Exception as e:
+        print("Error querying database:", e)
+        raise
+    if not rows:
+        raise Exception("Database is empty or has no entries in 'features' table.")
+    else:
+        df = pd.DataFrame([dict(row) for row in rows])
+        
+    print(df)
+
+def _make_slim_gtf(in_gtf, only_exons=True, essential_keys=None):
+    """
+    Handles both GTF and GFF3 inputs.
+    1. Converts GFF3 to GFF format, namely GFF3 key=value to GTF key "value".
+    2. Keeps only essential attributes (gene_id, transcript_id by default, but you can pass more keys on the 'essential_kesy' param).
+    3. Preserves all coordinates, strand, seqid, etc.
+    4. Returns the path to the slim GTF (tmp/slim.gtf).
     
-    rows=conn.execute("SELECT * FROM features LIMIT 5").fetchall()
-    df = pd.DataFrame([dict(row) for row in rows])
-    print(df.head(100))
+    :param in_gtf: GTF or GFF3 file
+    :param essential_keys: currently only gene_id and transcript_id (and optionally gene_name, etc.)
+    """   
 
-   
-
-def _make_slim_gtf(in_gtf, essential_keys=None):
-    """
-    Create a slim GTF containing only required GTF attributes:
-    - gene_id
-    - transcript_id
-    - exon_number (optional)
-    preserving all seqid, start, end, strand columns.
-    """
     if essential_keys is None:
-        essential_keys = {"gene_id", "transcript_id", "exon_number"}
+        essential_keys = {"gene_id", "transcript_id"}
 
     path = Path('./tmp')
     path.mkdir(parents=True, exist_ok=True)
-    with open(in_gtf) as inp, open(Path(path / "slim.gtf"), "w") as out:
+
+    # Convert GFF3 -> GTF if needed
+    in_path = Path(in_gtf)
+    if in_path.suffix.lower() in {".gff3", ".gff"}:
+        converted_gtf = path / "converted.gtf"
+
+        subprocess.run(["gffread", str(in_path), "-T", "-o", str(converted_gtf)], check=True,stderr=subprocess.DEVNULL)
+        converted_gtf_clean = path / "converted.cleaned.gtf"
+
+        with open(converted_gtf, "rt", encoding="utf-8") as rin, open(converted_gtf_clean, "wt", encoding="utf-8") as rout:
+            for line in rin:
+                if line.startswith("#") or not line.strip():
+                    rout.write(line)
+                    continue
+                cols = line.rstrip("\n").split("\t")
+                if len(cols) < 9:
+                    rout.write(line)
+                    continue
+                attrs = cols[8]
+                parsed = _parse_gtf_attributes(attrs)  # will already strip gene:/transcript:
+                # Rebuild attributes: prefer gene_id then transcript_id then other keys
+                order = []
+                for k in ("gene_id", "transcript_id"):
+                    if k in parsed and parsed[k]:
+                        order.append(f'{k} "{parsed[k]}"')
+                # append any others (optional)
+                for k, v in parsed.items():
+                    if k not in {"gene_id", "transcript_id"} and v:
+                        order.append(f'{k} "{v}"')
+                cols[8] = "; ".join(order) + ";" if order else "."
+                rout.write("\t".join(cols) + "\n")
+        in_gtf_to_use = converted_gtf_clean
+
+    else:
+        in_gtf_to_use = in_path
+
+    slim_gtf_path = path / "slim.gtf"
+
+    with open(in_gtf_to_use) as inp, open(slim_gtf_path, "w") as out:
         for line in inp:
             if line.startswith("#"):
                 out.write(line)
                 continue
 
             fields = line.rstrip("\n").split("\t")
-            attrs = fields[8]
+            if len(fields) < 9:
+                continue
+
+            ftype = fields[2]
+            if only_exons and ftype not in {"transcript", "exon"}:
+                continue  # skip everything else
+
+            attrs_dict = _parse_gtf_attributes(fields[8])
 
             new_attrs = []
-            for item in attrs.split(";"):
-                item = item.strip()
-                if not item:
-                    continue
-                key = item.split(" ")[0]
-                if key in essential_keys:
-                    new_attrs.append(item)
-
+            for key in essential_keys:
+                if key in attrs_dict:
+                    new_attrs.append(f'{key} "{attrs_dict[key]}"')
             fields[8] = "; ".join(new_attrs) + ";"
+
             out.write("\t".join(fields) + "\n")
+
+    return slim_gtf_path
+
+def _parse_gtf_attributes(attr_str):
+    """Parse GTF attributes into a dict, stripping 'gene:' and 'transcript:' prefixes."""
+    attrs = {}
+    for part in attr_str.strip().split(";"):
+        part = part.strip()
+        if not part:
+            continue
+
+        if "=" in part:
+            # handle GFF3 style
+            key, val = part.split("=", 1)
+            val = val.strip().strip('"')   # <-- FIX: remove quotes if present
+
+        elif '"' in part:
+            # handle GTF style
+            key, val = part.split('"', 1)
+            val = val.split('"')[0]
+
+        else:
+            continue
+
+        key = key.strip()
+        val = val.strip()
+
+        # remove gene: and transcript: prefixes
+        val = re.sub(r'^(?:gene:|transcript:)', '', val)
+
+        attrs[key] = val
+
+    return attrs
     
-def _cleanup_slim_gtf(slim_file):
-    """Removes the slim GTF file and its directory if empty."""
-    slim_file = Path(slim_file)
-    folder = slim_file.parent
+def _cleanup_tmp_folder():
+    """
+    Removes the local ./tmp folder with all its contents
+    """
+    tmp_dir = Path("./tmp")
 
-    # Delete file
-    if slim_file.exists():
-        slim_file.unlink()
-
-    # Delete folder ONLY if empty
     try:
-        folder.rmdir()
-    except OSError:
-        pass  # folder not empty → ignore
+        shutil.rmtree(tmp_dir)
+    except FileNotFoundError:
+        pass
 
 # Logging filter: only keep selected messages on console
 class _SelectiveConsoleFilter(logging.Filter):

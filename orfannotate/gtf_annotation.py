@@ -1,6 +1,7 @@
 import re
 import gffutils
 import logging
+from pathlib import Path
 from collections import defaultdict, OrderedDict
 
 logger = logging.getLogger(__name__)
@@ -24,12 +25,13 @@ def _extract_tid_from_attrs(attr_field: str):
     if m:
         return m.group(1)
 
-    # Very simple GFF3-style handling
-    m = re.search(r'(?:^|;)\s*Parent=([^;]+)', attr_field)
-    if m:
-        parent = m.group(1)
-        # strip optional transcript: prefix
-        return re.sub(r'^(?:transcript:)?', '', parent)
+    # # Very simple GFF3-style handling
+    # m = re.search(r'(?:^|;)\s*Parent=([^;]+)', attr_field)
+    # if m:
+    #     print(m)
+    #     parent = m.group(1)
+    #     # strip optional transcript: prefix
+    #     return re.sub(r'^(?:transcript:)?', '', parent)
 
     return None
 
@@ -51,11 +53,13 @@ def build_cds_features(gtf_db, best_orfs):
 
     for tid, orf in best_orfs.items():
         tx = tx_lookup.get(tid) or tx_lookup.get(tid.split('.')[0])
+        
         if tx is None:
             logger.warning(f"[CDS] No transcript found for {tid}")
             continue
 
         exons = list(gtf_db.children(tx, featuretype="exon", order_by="start"))
+
         if tx.strand == "-":
             exons.reverse()
 
@@ -68,7 +72,6 @@ def build_cds_features(gtf_db, best_orfs):
             exon_tr_start = transcript_pos
             exon_tr_end = transcript_pos + exon_len - 1
             
-
             # Overlap in transcript coords
             cds_exon_start_tr = max(exon_tr_start, cds_start_tr)
             cds_exon_end_tr = min(exon_tr_end, cds_end_tr)
@@ -77,9 +80,9 @@ def build_cds_features(gtf_db, best_orfs):
                 cds_start_gen = exon.start + (cds_exon_start_tr - exon_tr_start)
                 cds_end_gen = exon.start + (cds_exon_end_tr - exon_tr_start)
             else:
-                cds_end_gen = exon.end - (cds_exon_start_tr - exon_tr_start)
                 cds_start_gen = exon.end - (cds_exon_end_tr - exon_tr_start)
-
+                cds_end_gen = exon.end - (cds_exon_start_tr - exon_tr_start)
+                
 
             common_attrs = {
                 "gene_id":      tx.attributes.get("gene_id", [""])[0],
@@ -87,18 +90,19 @@ def build_cds_features(gtf_db, best_orfs):
                 "gene_name":    tx.attributes.get("gene_name", [""])[0],
                 "ref_gene_id":  tx.attributes.get("ref_gene_id", [""])[0],
             }
-
+            
+           
             # Full UTR exon & CDS definition
             if exon_tr_end < cds_start_tr:
-                feature="five_prime_utr"
+                feature = "five_prime_utr"
                 start_coord = min(exon.start, exon.end)
                 end_coord = max(exon.start, exon.end)
             elif exon_tr_start > cds_end_tr:
-                feature="three_prime_utr"
+                feature = "three_prime_utr"
                 start_coord = min(exon.start, exon.end)
                 end_coord = max(exon.start, exon.end)
             else:
-                feature="CDS"
+                feature = "CDS"
                 start_coord=min(cds_start_gen, cds_end_gen)
                 end_coord=max(cds_start_gen, cds_end_gen)
                 
@@ -107,11 +111,11 @@ def build_cds_features(gtf_db, best_orfs):
                     # Partial UTR exon definition
                     if (tx.strand == "-" and ((exon.start-start_coord) < 0)):                             
                         utr_feature="three_prime_utr"
-                        utr_start_coord=cds_start_gen-abs((exon.start-start_coord))
-                        utr_end_coord=cds_start_gen+1
+                        utr_start_coord = cds_start_gen-abs((exon.start-start_coord))
+                        utr_end_coord = cds_start_gen - 1
                     elif (tx.strand == "-" and ((exon.end-end_coord) > 0)):
-                        utr_feature="five_prime_utr"
-                        utr_start_coord = cds_end_gen - 1
+                        utr_feature = "five_prime_utr"
+                        utr_start_coord = cds_end_gen + 1
                         utr_end_coord = cds_end_gen + (exon.end-end_coord)
                     elif (tx.strand == "+" and ((exon.start-start_coord) < 0)):
                         utr_feature="five_prime_utr"
@@ -121,7 +125,8 @@ def build_cds_features(gtf_db, best_orfs):
                         utr_feature="three_prime_utr"
                         utr_start_coord=cds_end_gen + 1
                         utr_end_coord=cds_end_gen + (exon.end-end_coord)
-                        
+                    
+                    
                     cds_features.append({
                         "seqid": exon.seqid,
                         "source": "ORFannotate",
@@ -165,13 +170,17 @@ def annotate_gtf_with_cds(gtf_path, cds_features, output_path):
     cds_by_tid = defaultdict(list)
     for feat in cds_features:
         cds_by_tid[feat["attributes"]["transcript_id"]].append(feat)
-
+    
     # Collect transcript + exon lines from original GTF (preserve transcript order)
     transcript_lines = OrderedDict()
     exons_by_tid = defaultdict(list)
+    
+    if Path(gtf_path).suffix.lower() in {".gff3", ".gff"}:
+        gtf_path = "tmp/converted.cleaned.gtf"
 
     with open(gtf_path, "rt", encoding="utf-8") as fin:
         for line in fin:
+          
             if not line.strip() or line.startswith("#"):
                 continue
             parts = line.rstrip("\n").split("\t")
@@ -181,10 +190,12 @@ def annotate_gtf_with_cds(gtf_path, cds_features, output_path):
             ftype = parts[2]
             attrs = parts[8]
             tid = _extract_tid_from_attrs(attrs)
+   
             if not tid:
                 continue
 
             if ftype == "transcript":
+                
                 if tid not in transcript_lines:
                     transcript_lines[tid] = line
             elif ftype == "exon":
@@ -206,9 +217,10 @@ def annotate_gtf_with_cds(gtf_path, cds_features, output_path):
                     0,
                     "\t".join(exon) + "\n"
                 ))
-
+            
             # add predicted CDS (converted to GTF row strings)
             for cds in cds_by_tid.get(tid, []):
+                
                 a = cds["attributes"]
                 attr_items = [
                     f'gene_id "{a.get("gene_id","")}"',
@@ -235,7 +247,7 @@ def annotate_gtf_with_cds(gtf_path, cds_features, output_path):
                     1,
                     "\t".join(cds_line) + "\n"
                 ))
-
+          
             # sort and write
             for _, _, row in sorted(combined_rows, key=lambda x: (x[0], x[1])):
                 fout.write(row)

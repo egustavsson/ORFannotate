@@ -96,4 +96,8 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
     orf_summary["coding_prob_best_uORF"] = orf_summary["transcript_id"].map(selected_uorfs)
    
     # Save results
-    pd.DataFrame(orf_summary).to_csv(summary_tsv_path, sep="\t", index=False)
+    orf_summary.to_csv(summary_tsv_path,
+                       sep="\t",
+                       index=False,
+                       na_rep="NA"
+                       )

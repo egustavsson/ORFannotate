@@ -131,6 +131,7 @@ After a successful run, the following files will be saved in `<output_dir>`:
 | `CPAT/cpat_debug.tsv`         | Full CPAT-scored ORFs (optional debug output)                    |
 | `CPAT/CPAT_run_info.log`      | Full CPAT command log                                            |
 | `CPAT/CPAT.log`               | CPAT runtime messages                                            |
+| `CPAT_uORF/`                  | CPAT outputs for uORF prediction using 5′ UTR sequences          |
 | `cds.fa`                      | FASTA of predicted coding sequences for coding transcripts       |
 | `protein.fa`                  | FASTA of protein sequences translated from predicted CDS         |
 | `utr5.fa`                     | FASTA of 5′ UTRs for coding transcripts (if present)             |

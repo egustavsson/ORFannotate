@@ -43,7 +43,7 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
     """
     Run CPAT per-transcript only in 5'UTR sequences:
       - Ensure only non-overlapping uORFs above a certain protein cutoff are selected
-      - Incorporate selected uRFs to the 'summary.tsv' file
+      - Incorporate selected uORFs to the 'summary.tsv' file
     """
     # Canonical ORF 
     canonical_orf_cpat_dir = os.path.join(output_dir, "CPAT")

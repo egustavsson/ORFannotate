@@ -6,7 +6,7 @@
 
 [![DOI](https://zenodo.org/badge/958608941.svg)](https://doi.org/10.5281/zenodo.16812866)
 
-`ORFannotate` is a Python-based command-line tool for identifying coding open reading frames (ORFs) in transcript annotations. It augments GTF/GFF files with precise CDS features and generates a comprehensive transcript-level summary, including coding classification (CPAT score), Kozak context strength, 5′ and 3′ UTR lengths, splice junction distribution, and predicted nonsense-mediated decay (NMD) sensitivity.
+`ORFannotate` is a Python-based command-line tool for identifying coding open reading frames (ORFs) in transcript annotations. It augments GTF/GFF files with precise CDS features and generates a comprehensive transcript-level summary, including coding classification (CPAT score), Kozak context strength, 5′ and 3′ UTR lengths, splice junction distribution, predicted nonsense-mediated decay (NMD) sensitivity and perdicts upstream ORFs (uORFs).
 
 Designed for fast and reproducible transcriptome analysis, `ORFannotate` supports multiple species with pre-trained CPAT models, requires minimal dependencies, and integrates seamlessly into bioinformatics workflows.
 
@@ -173,6 +173,10 @@ The final output summary file `ORFannotate_summary.tsv` contains one row per tra
 | `has_uORF`                    | `TRUE` if an uORF was predicted, `FALSE` otherwise |
 | `coding_prob_best_uORF`       | CPAT-predicted coding probability of the best uORF |
 
+> **Note on uORFs:**  
+> uORFs are only evaluated for transcripts with a predicted canonical coding ORF.  
+> Transcripts classified as noncoding are not assessed for uORFs, and corresponding uORF-related fields are reported as `FALSE` or `NA`.
+
 ---
 
 ### Kozak Sequence Scoring
@@ -255,7 +259,7 @@ ORFannotate/
 This project is licensed under the GPLv3 License. See `LICENSE` for details.
 
 ## Acknowledgements
-- [CPAT](https://github.com/urmi-21/orfipy)
+- [CPAT](https://cpat.readthedocs.io/en/latest/)
 - [gffutils](https://github.com/daler/gffutils)
 - [Biopython](https://biopython.org/)
 - [gffread](https://github.com/gpertea/gffread)

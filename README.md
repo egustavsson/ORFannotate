@@ -173,10 +173,6 @@ The final output summary file `ORFannotate_summary.tsv` contains one row per tra
 | `has_uORF`                    | `TRUE` if an uORF was predicted, `FALSE` otherwise |
 | `coding_prob_best_uORF`       | CPAT-predicted coding probability of the best uORF |
 
-> **Note on uORFs:**  
-> uORFs are only evaluated for transcripts with a predicted canonical coding ORF.  
-> Transcripts classified as noncoding are not assessed for uORFs, and corresponding uORF-related fields are reported as `FALSE` or `NA`.
-
 ---
 
 ### Kozak Sequence Scoring
@@ -216,6 +212,20 @@ This conservative approach is fast and works well for general transcriptome-leve
 The following output column is provided in the summary:
 
 NMD_sensitive: "TRUE" if the transcript meets the NMD rule, "FALSE" otherwise.
+
+---
+
+### Upstream Open Reading Frames (uORFs)
+
+ORFannotate identifies upstream open reading frames (uORFs) within the 5′ UTR of transcripts that are classified as coding and have a predicted canonical ORF.
+
+uORFs are defined as CPAT-predicted ORFs that:
+- occur entirely upstream of the canonical ORF start site
+- exceed the minimum configured ORF length
+- have a coding probability above the specified cutoff
+
+uORFs are not evaluated for transcripts without a predicted canonical coding ORF.  
+If no qualifying uORF is detected, `has_uORF` is reported as `FALSE` and `coding_prob_best_uORF` as `NA`.
 
 ## Directory Structure
 

@@ -6,13 +6,15 @@
 
 [![DOI](https://zenodo.org/badge/958608941.svg)](https://doi.org/10.5281/zenodo.16812866)
 
-`ORFannotate` is a Python-based command-line tool for identifying coding open reading frames (ORFs) in transcript annotations. It augments GTF/GFF files with precise CDS features and generates a comprehensive transcript-level summary, including coding classification (CPAT score), Kozak context strength, 5′ and 3′ UTR lengths, splice junction distribution, predicted nonsense-mediated decay (NMD) sensitivity and perdicts upstream ORFs (uORFs).
+`ORFannotate` is a Python-based command-line tool for identifying coding open reading frames (ORFs) in transcript annotations. It augments GTF/GFF files with precise CDS features and generates a comprehensive transcript-level summary, including coding classification (CPAT score), Kozak context strength, 5′ and 3′ UTR lengths, splice junction distribution, predicted nonsense-mediated decay (NMD) sensitivity and predicts upstream ORFs (uORFs).
 
 Designed for fast and reproducible transcriptome analysis, `ORFannotate` supports multiple species with pre-trained CPAT models, requires minimal dependencies, and integrates seamlessly into bioinformatics workflows.
 
 ---
 
 ## Features
+
+`ORFannotate` is designed as a lightweight, GTF-native annotation step that augments transcript models with coding and translational-context information:
 - Extract transcript sequences from a GTF/GFF and genome FASTA
 - Predict and score ORFs using [`CPAT`](https://cpat.readthedocs.io/en/latest/#introduction)
 - Annotate GTF/GFF files with CDS features (only for coding transcripts)
@@ -93,7 +95,7 @@ To run `ORFannotate`:
 ```bash
 python ORFannotate.py --gtf annotations.gtf --fa genome.fa --outdir output/
 ```
-## CPAT Species Support
+### CPAT Species Support
 
 `ORFannotate` now supports multiple species using CPAT’s pre-trained models:
 
@@ -118,6 +120,7 @@ Use the `--species` argument to select the appropriate model. If `--coding-cutof
 `ORFannotate` includes a configuration file [config.json](data/config.json) defining:
 - Paths to CPAT model files for each supported species
 - Default CPAT probability cutoffs
+- Number of ORFs retained per transcript (top N by CPAT score; default N = 5)
 This allows developers to update or extend species model support without editing the main script.
 
 ## Output files
@@ -126,7 +129,7 @@ After a successful run, the following files will be saved in `<output_dir>`:
 | **File**                      | **Description**                                                  |
 |-------------------------------|------------------------------------------------------------------|
 | `transcripts.fa`              | FASTA file of full transcript sequences                          |
-| `CPAT/cpat.ORF_prob.tsv`      | CPAT output for the top 5 ORF per transcript                     |
+| `CPAT/cpat.ORF_prob.tsv`      | CPAT output for the top N ORFs per transcript (default: 5)       |
 | `CPAT/cpat.ORF_prob.best.tsv` | CPAT output for the best ORF per transcript                      |
 | `CPAT/cpat_debug.tsv`         | Full CPAT-scored ORFs (optional debug output)                    |
 | `CPAT/CPAT_run_info.log`      | Full CPAT command log                                            |

@@ -235,11 +235,11 @@ If no qualifying uORF is detected, `has_uORF` is reported as `FALSE` and `coding
 
 ```
 ORFannotate/
-├── ORFannotate.py                # Main script (entry point)
-├── ORFannotate.conda_env.yml     # Conda environment file
-├── orfannotate/                  # Modular Python package
+├── ORFannotate.py                 # Main script (entry point)
+├── ORFannotate.conda_env.yml      # Conda environment file
+├── orfannotate/                   # Modular Python package
 │   ├── __init__.py
-|   ├── utils.py                  # Shared helper functions
+|   ├── utils.py                   # Shared helper functions
 │   ├── transcript_extraction.py
 │   ├── orf_prediction.py
 │   ├── gtf_annotation.py
@@ -248,7 +248,7 @@ ORFannotate/
 │   ├── orf_filter.py
 │   └── summarise.py
 |
-├── tests/                        # Unit tests (pytest)
+├── tests/                         # Unit tests (pytest)
 │   ├── test_imports.py
 │   ├── test_kozak.py
 │   ├── test_nmd.py
@@ -257,10 +257,11 @@ ORFannotate/
 |       ├── toy.fa
 |       └── toy.gtf
 │
-├── data/                         # CPAT model files (hexamer and logitModel)
+├── data/                          # CPAT model files (hexamer and logitModel)
 │   ├── Human_Hexamer.tsv
 │   |── Human_logitModel.RData
-│   └── ...
+│   |── ... # additional species
+|   └── config.json                # Config file: species models, cutoffs, ORF limits.
 │
 ├── docs/
 │   └── logo.svg

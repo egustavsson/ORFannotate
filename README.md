@@ -8,7 +8,7 @@
 ![GitHub release](https://img.shields.io/github/v/release/egustavsson/ORFannotate)
 ![License](https://img.shields.io/github/license/egustavsson/ORFannotate)
 
-`ORFannotate` is a Python-based command-line tool for identifying coding open reading frames (ORFs) in transcript annotations. It augments GTF/GFF files with precise CDS features and generates a comprehensive transcript-level summary, including coding classification (CPAT score), Kozak context strength, 5′ and 3′ UTR lengths, splice junction distribution, predicted nonsense-mediated decay (NMD) sensitivity and predicts upstream ORFs (uORFs).
+`ORFannotate` is a Python-based command-line tool for annotating coding open reading frames (ORFs) and translational features directly within transcript annotations. It augments GTF/GFF files with precise CDS features and generates a comprehensive transcript-level summary, including coding classification (CPAT score), Kozak context strength, 5′ and 3′ UTR lengths, splice junction distribution, predicted nonsense-mediated decay (NMD) sensitivity and predicts upstream ORFs (uORFs).
 
 Designed for fast and reproducible transcriptome analysis, `ORFannotate` supports multiple species with pre-trained CPAT models, requires minimal dependencies, and integrates seamlessly into bioinformatics workflows.
 

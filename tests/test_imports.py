@@ -13,11 +13,11 @@ def test_import_kozak():
 def test_import_orf_filter():
     from orfannotate import orf_filter
     assert hasattr(orf_filter, "get_best_orfs_by_cpat")
-    assert hasattr(orf_filter, "build_cds_features")
 
 def test_import_gtf_annotation():
     from orfannotate import gtf_annotation
     assert hasattr(gtf_annotation, "annotate_gtf_with_cds")
+    assert hasattr(gtf_annotation, "build_cds_features")
 
 def test_import_transcript_extraction():
     from orfannotate import transcript_extraction

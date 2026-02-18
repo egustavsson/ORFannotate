@@ -271,6 +271,15 @@ ORFannotate/
 ├── LICENSE
 └── README.md
 ```
+## Citation
+
+If you use ORFannotate in your research, please cite:
+
+García-Ruiz S, Macpherson H, Caton L, Ryten M, Gustavsson EK.  
+**ORFannotate: reproducible coding sequence annotation of transcriptome assemblies.**  
+*Bioinformatics* (2026), 
+[https://doi.org/10.1093/bioinformatics/btag082](https://doi.org/10.1093/bioinformatics/btag082)
+
 
 ## License
 This project is licensed under the GPLv3 License. See [`LICENSE`](LICENSE) for details.

@@ -275,7 +275,7 @@ ORFannotate/
 
 If you use ORFannotate in your research, please cite:
 
-García-Ruiz S, Macpherson H, Caton L, Ryten M, Gustavsson EK.  
+Sonia García-Ruiz, Hannah Macpherson, Laura Caton, Mina Ryten, Emil K Gustavsson. 
 **ORFannotate: reproducible coding sequence annotation of transcriptome assemblies.**  
 *Bioinformatics* (2026), 
 [https://doi.org/10.1093/bioinformatics/btag082](https://doi.org/10.1093/bioinformatics/btag082)

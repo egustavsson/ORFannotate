@@ -273,7 +273,7 @@ ORFannotate/
 ```
 
 ## License
-This project is licensed under the GPLv3 License. See `LICENSE` for details.
+This project is licensed under the GPLv3 License. See [`LICENSE`](LICENSE) for details.
 
 ## Acknowledgements
 - [CPAT](https://cpat.readthedocs.io/en/latest/)

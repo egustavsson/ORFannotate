@@ -230,7 +230,7 @@ uORFs are defined as CPAT-predicted ORFs that:
 - exceed the minimum configured ORF length (default: 30 nt / 10 aa)
 - have a coding probability above the specified cutoff
 
-The minimum uORF length is configurable per species in `data/config.json` via the
+The minimum uORF length is configurable per species in [config.json](data/config.json) via the
 `min_length_uorf` field. Increasing this value (for example to 50) yields fewer,
 more stringent uORF calls.
 

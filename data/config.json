@@ -6,7 +6,7 @@
       "cutoff": 0.364,
       "top_orf": 5,
       "min_length_orf": 70,
-      "min_length_uorf": 50
+      "min_length_uorf": 30
     },
     "mouse": {
       "hexamer": "Mouse_Hexamer.tsv",

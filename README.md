@@ -122,6 +122,7 @@ Use the `--species` argument to select the appropriate model. If `--coding-cutof
 - Paths to CPAT model files for each supported species
 - Default CPAT probability cutoffs
 - Number of ORFs retained per transcript (top N by CPAT score; default N = 5)
+- Minimum length for upstream ORFs (`min_length_uorf`, default: 30 nt)
 This allows developers to update or extend species model support without editing the main script.
 
 ## Output files
@@ -226,8 +227,12 @@ ORFannotate identifies upstream open reading frames (uORFs) within the 5′ UTR 
 
 uORFs are defined as CPAT-predicted ORFs that:
 - occur entirely upstream of the canonical ORF start site
-- exceed the minimum configured ORF length
+- exceed the minimum configured ORF length (default: 30 nt / 10 aa)
 - have a coding probability above the specified cutoff
+
+The minimum uORF length is configurable per species in `data/config.json` via the
+`min_length_uorf` field. Increasing this value (for example to 50) yields fewer,
+more stringent uORF calls.
 
 uORFs are not evaluated for transcripts without a predicted canonical coding ORF.  
 If no qualifying uORF is detected, `has_uORF` is reported as `FALSE` and `coding_prob_best_uORF` as `NA`.

@@ -4,38 +4,10 @@ import logging
 from pathlib import Path
 from collections import defaultdict, OrderedDict
 
+from orfannotate.utils import _build_tx_lookup, _extract_tid_from_attrs, TRANSCRIPT_LIKE_FEATURES
+
 logger = logging.getLogger(__name__)
 
-# Help functions
-
-def _build_tx_lookup(db):
-    
-    lut = {}
-    for tx in db.features_of_type("transcript"):
-        tid_full = tx.attributes["transcript_id"][0]
-        lut[tid_full] = tx
-        lut[tid_full.split(".")[0]] = tx
-    return lut
-
-
-def _extract_tid_from_attrs(attr_field: str):
-    
-    # GTF style
-    m = re.search(r'\btranscript_id\s+"([^"]+)"', attr_field)
-    if m:
-        return m.group(1)
-
-    # # Very simple GFF3-style handling
-    # m = re.search(r'(?:^|;)\s*Parent=([^;]+)', attr_field)
-    # if m:
-    #     print(m)
-    #     parent = m.group(1)
-    #     # strip optional transcript: prefix
-    #     return re.sub(r'^(?:transcript:)?', '', parent)
-
-    return None
-
-# Main functions
 
 def build_cds_features(gtf_db, best_orfs):
     """
@@ -194,7 +166,7 @@ def annotate_gtf_with_cds(gtf_path, cds_features, output_path):
             if not tid:
                 continue
 
-            if ftype == "transcript":
+            if ftype in TRANSCRIPT_LIKE_FEATURES:
                 
                 if tid not in transcript_lines:
                     transcript_lines[tid] = line

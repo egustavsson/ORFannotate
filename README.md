@@ -275,7 +275,7 @@ ORFannotate/
 ```
 ## Citation
 
-If you use ORFannotate in your research, please cite:
+If you use `ORFannotate` in your research, please cite:
 
 Sonia García-Ruiz, Hannah Macpherson, Laura Caton, Mina Ryten, Emil K Gustavsson.  
 **ORFannotate: reproducible coding sequence annotation of transcriptome assemblies.**  

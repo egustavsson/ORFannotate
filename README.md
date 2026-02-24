@@ -123,7 +123,6 @@ Use the `--species` argument to select the appropriate model. If `--coding-cutof
 - Default CPAT probability cutoffs
 - Number of ORFs retained per transcript (top N by CPAT score; default N = 5)
 - Minimum length for upstream ORFs (`min_length_uorf`, default: 30 nt)
-This allows developers to update or extend species model support without editing the main script.
 
 ## Output files
 After a successful run, the following files will be saved in `<output_dir>`:
@@ -231,8 +230,7 @@ uORFs are defined as CPAT-predicted ORFs that:
 - have a coding probability above the specified cutoff
 
 The minimum uORF length is configurable per species in [config.json](data/config.json) via the
-`min_length_uorf` field. Increasing this value (for example to 50) yields fewer,
-more stringent uORF calls.
+`min_length_uorf` field.
 
 uORFs are not evaluated for transcripts without a predicted canonical coding ORF.  
 If no qualifying uORF is detected, `has_uORF` is reported as `FALSE` and `coding_prob_best_uORF` as `NA`.

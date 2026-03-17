@@ -16,7 +16,7 @@ from rich.progress import Progress
 # Internal modules
 from orfannotate.nmd import predict_nmd
 from orfannotate.kozak import score_kozak
-from orfannotate.utils import _load_transcript_sequences, _map_junctions_to_tx, _create_db
+from orfannotate.utils import _load_transcript_sequences, _map_junctions_to_tx, _create_db, _normalize_tid
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(format="%(levelname)s:%(name)s:%(message)s", level=logging.INFO)
@@ -45,8 +45,12 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
     utr5_records = []
     utr3_records = []
 
-    all_tx_ids = {t.id for t in db.features_of_type("transcript")}
-    all_tx_ids &= set(transcript_seqs.keys())
+    fasta_ids_norm = {_normalize_tid(tid) for tid in transcript_seqs.keys()}
+    
+    all_tx_ids = {
+        tid for tid in (t.id for t in db.features_of_type("transcript"))
+        if _normalize_tid(tid) in fasta_ids_norm
+    }
     
     children = db.children
     
@@ -54,8 +58,18 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
 
     for tid in sorted(all_tx_ids): 
         
-        has_orf = tid in best_orfs
-        orf_data = best_orfs.get(tid, None)
+        tid_base = tid.split(".")[0]
+        tid_norm = _normalize_tid(tid)
+        tid_base_norm = _normalize_tid(tid_base)
+        
+        orf_data = (
+            best_orfs.get(tid)
+            or best_orfs.get(tid_base)
+            or best_orfs.get(tid_norm)
+            or best_orfs.get(tid_base_norm)
+        )
+        
+        has_orf = orf_data is not None
         
         try:
             tx = db[tid]
@@ -94,7 +108,18 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
             else "noncoding"
         )
         
-        full_seq = str(transcript_seqs[tid].seq)
+        seq_record = (
+            transcript_seqs.get(tid)
+            or transcript_seqs.get(tid_base)
+            or transcript_seqs.get(tid_norm)
+            or transcript_seqs.get(tid_base_norm)
+        )
+        
+        if seq_record is None:
+            continue
+        
+        full_seq = str(seq_record.seq)
+        
         seq_len = len(full_seq)
 
         if coding_class == "coding":

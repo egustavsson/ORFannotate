@@ -4,6 +4,7 @@ import logging
 import pandas as pd
 
 from orfannotate.orf_filter import get_best_orfs_by_cpat
+from orfannotate.utils import _normalize_tid
 
 logger = logging.getLogger(__name__)
 
@@ -64,17 +65,19 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
     best_uorf = get_best_orfs_by_cpat(uorf_cpat_results, debug_output_path=uorf_debug_output)
 
     # Lookup dict for quick canonical tx_id and ORF_start access
+    canonical_orf_cpat_df["norm_seq_ID"] = canonical_orf_cpat_df["seq_ID"].map(_normalize_tid)
+    
     canon_orf_start = (
         canonical_orf_cpat_df
-        .set_index("seq_ID")["ORF_start"]
+        .set_index("norm_seq_ID")["ORF_start"]
         .to_dict()
     )
-
+    
     # Filter uORFs so that only TRUE uORFs remain (end < canonical ORF start)
     selected_uorfs = {}
     for tx, uorf in best_uorf.items():
 
-        orf_start = canon_orf_start.get(tx)
+        orf_start = canon_orf_start.get(_normalize_tid(tx))
 
         if orf_start is None:
             # no canonical ORF found > skip
@@ -92,8 +95,12 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
     orf_summary = pd.read_csv(summary_tsv_path, sep='\t')    
 
     # Update the final 'summary.tsv': add the new two uORF columns
-    orf_summary["has_uORF"] = orf_summary["transcript_id"].map(lambda x: selected_uorfs.get(x) is not None)
-    orf_summary["coding_prob_best_uORF"] = orf_summary["transcript_id"].map(selected_uorfs)
+    orf_summary["has_uORF"] = orf_summary["transcript_id"].map(
+        lambda x: selected_uorfs.get(_normalize_tid(x)) is not None
+    )
+    orf_summary["coding_prob_best_uORF"] = orf_summary["transcript_id"].map(
+        lambda x: selected_uorfs.get(_normalize_tid(x))
+    )
    
     # Save results
     orf_summary.to_csv(summary_tsv_path,

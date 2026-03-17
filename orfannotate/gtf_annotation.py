@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from collections import defaultdict, OrderedDict
 
-from orfannotate.utils import _build_tx_lookup, _extract_tid_from_attrs, TRANSCRIPT_LIKE_FEATURES
+from orfannotate.utils import _build_tx_lookup, _extract_tid_from_attrs, TRANSCRIPT_LIKE_FEATURES, _normalize_tid
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,13 @@ def build_cds_features(gtf_db, best_orfs):
     cds_features = []
 
     for tid, orf in best_orfs.items():
-        tx = tx_lookup.get(tid) or tx_lookup.get(tid.split('.')[0])
+        tid_base = tid.split(".")[0]
+        tx = (
+            tx_lookup.get(tid)
+            or tx_lookup.get(tid_base)
+            or tx_lookup.get(_normalize_tid(tid))
+            or tx_lookup.get(_normalize_tid(tid_base))
+        )
         
         if tx is None:
             logger.warning(f"[CDS] No transcript found for {tid}")
@@ -58,7 +64,7 @@ def build_cds_features(gtf_db, best_orfs):
 
             common_attrs = {
                 "gene_id":      tx.attributes.get("gene_id", [""])[0],
-                "transcript_id": tid,
+                "transcript_id": tx.attributes.get("transcript_id", [tid])[0],
                 "gene_name":    tx.attributes.get("gene_name", [""])[0],
                 "ref_gene_id":  tx.attributes.get("ref_gene_id", [""])[0],
             }

@@ -92,7 +92,18 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
 
     # Load final summary.tsv file
     summary_tsv_path = os.path.join(output_dir, "ORFannotate_summary.tsv")
-    orf_summary = pd.read_csv(summary_tsv_path, sep='\t')    
+    # Set column types for the final tsv summary
+    orf_summary = pd.read_csv(
+        summary_tsv_path,
+        sep='\t',
+        dtype={
+            "chrom": str,
+            "gene_id": str,
+            "transcript_id": str,
+            "kozak_strength": str,
+            "kozak_sequence": str,
+        }
+    )
 
     # Update the final 'summary.tsv': add the new two uORF columns
     orf_summary["has_uORF"] = orf_summary["transcript_id"].map(

@@ -58,6 +58,17 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
 
     for tid in sorted(all_tx_ids): 
         
+        # Set all variables initially to None
+        orf_start = orf_end_tx = None
+        coding_prob = None
+        nt_seq = aa_seq = None
+        orf_nt_len = orf_aa_len = None
+        kozak_strength = kozak_seq = None
+        stop_to_last_ej = None
+        utr5_seq = utr3_seq = None
+        utr5_len = utr3_len = None
+        utr5_junctions = cds_junctions = utr3_junctions = None
+
         tid_base = tid.split(".")[0]
         tid_norm = _normalize_tid(tid)
         tid_base_norm = _normalize_tid(tid_base)
@@ -88,9 +99,6 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
             orf_start = orf_data["start"]
             orf_end_tx = orf_data["end"]
             coding_prob = orf_data["coding_prob"]
-        else:
-            orf_start = orf_end_tx = "NA"
-            coding_prob = "NA"
     
         # Get all CDS exons
         cds_feats = list(children(tx, featuretype="CDS", order_by="start"))
@@ -128,17 +136,12 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
             orf_nt_len = orf_end_tx - orf_start + 1
             orf_aa_len = len(aa_seq)
             kozak_strength, kozak_seq = score_kozak(full_seq, orf_start)
-        else:
-            nt_seq = aa_seq = "NA"
-            orf_nt_len = orf_aa_len = "NA"
-            kozak_strength = kozak_seq = "NA"
 
         
         if has_orf and orf_end_gen is not None and cds_feats:
             last_j = cds_feats[-1].end if strand == '+' else cds_feats[0].start
             stop_to_last_ej = last_j - orf_end_gen if strand == '+' else orf_end_gen - last_j
-        else:
-            stop_to_last_ej = "NA"
+
 
         nmd_flag = predict_nmd(orf_end_gen, cds_feats, strand) if coding_class == "coding" else "FALSE"
         
@@ -152,13 +155,10 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
             cds_junctions = len(cds_feats)-1 if len(cds_feats) > 1 else 0
             total_junctions = (utr5_junctions + cds_junctions + utr3_junctions)
         else:
-            utr5_junctions = cds_junctions = utr3_junctions = "NA"
             total_junctions = len(list(children(tx, featuretype="exon")))
         
         
         # UTR length calculation
-        utr5_seq = utr3_seq = "NA"
-        utr5_len = utr3_len = "NA"
         if coding_class == "coding":
             if orf_start > 1:
                 utr5_seq = full_seq[:orf_start - 1]
@@ -171,9 +171,9 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
             cds_records.append(SeqRecord(Seq(nt_seq), id=tid, description=desc))
             protein_records.append(SeqRecord(Seq(aa_seq), id=tid, description=desc))
 
-            if utr5_len != "NA":
+            if utr5_len is not None:
                 utr5_records.append(SeqRecord(Seq(utr5_seq), id=tid, description=desc))
-            if utr3_len != "NA":
+            if utr3_len is not None:
                 utr3_records.append(SeqRecord(Seq(utr3_seq), id=tid, description=desc))
         
         
@@ -185,7 +185,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
             "strand": strand,
             "transcript_start": tx_start,
             "transcript_end": tx_end,
-            "has_orf": "TRUE" if has_orf else "FALSE",
+            "has_orf": has_orf,
             "orf_nt_len": orf_nt_len,
             "orf_aa_len": orf_aa_len,
             "utr5_nt_len": utr5_len,

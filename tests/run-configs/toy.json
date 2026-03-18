@@ -1,0 +1,100 @@
+{
+    "gtf": "/home/sg2173/PROJECTS/lrRNAseq/ORFannotate/tests/test_data/toy.gtf",
+    "fasta": "/home/sg2173/PROJECTS/lrRNAseq/ORFannotate/tests/test_data/toy.fa",
+    "species": "human",
+    "coding_cutoff": 0.364,
+    "expected_fields": [
+        {
+            "tid": "ENST00000270162",
+            "fields": {
+                "gene_id":               "ENSG00000142178",
+                "chrom":                 "chr21",
+                "strand":                "-",
+                "has_orf":               true,
+                "orf_nt_len":            2352.0,
+                "orf_aa_len":            783.0,
+                "utr5_nt_len":           136.0,
+                "utr3_nt_len":           2259.0,
+                "coding_class":          "coding",
+                "total_junctions":       13,
+                "utr5_junctions":        1.0,
+                "cds_junctions":         12.0,
+                "utr3_junctions":        0.0,
+                "stop_to_last_EJ":       0.0,
+                "NMD_sensitive":         false,
+                "kozak_strength":        "strong",
+                "kozak_sequence":        "GGAGCCATGG",
+                "has_uORF":              true
+            }
+        },
+        {
+            "tid": "ENST00000284987.6",
+            "fields": {
+                "gene_id":               "ENSG00000154736.6",
+                "chrom":                 "chr21",
+                "strand":                "-",
+                "has_orf":               true,
+                "orf_nt_len":            2793.0,
+                "orf_aa_len":            930.0,
+                "utr5_nt_len":           697.0,
+                "utr3_nt_len":           6131.0,
+                "coding_class":          "coding",
+                "total_junctions":       7,
+                "utr5_junctions":        0.0,
+                "cds_junctions":         7.0,
+                "utr3_junctions":        0.0,
+                "stop_to_last_EJ":       0.0,
+                "NMD_sensitive":         false,
+                "kozak_strength":        "moderate",
+                "kozak_sequence":        "CGCACTATGC",
+                "has_uORF":              false
+            }
+        },
+        {
+            "tid": "ENST00000285681",
+            "fields": {
+                "gene_id":               "MSTRG.45735",
+                "chrom":                 "chr21",
+                "strand":                "+",
+                "has_orf":               true,
+                "orf_nt_len":            3264.0,
+                "orf_aa_len":            1087.0,
+                "utr5_nt_len":           369.0,
+                "utr3_nt_len":           20814.0,
+                "coding_class":          "coding",
+                "total_junctions":       24,
+                "utr5_junctions":        0.0,
+                "cds_junctions":         24.0,
+                "utr3_junctions":        0.0,
+                "stop_to_last_EJ":       0.0,
+                "NMD_sensitive":         false,
+                "kozak_strength":        "moderate",
+                "kozak_sequence":        "GGGGCCATGA",
+                "has_uORF":              false
+            }
+        },
+        {
+            "tid": "mstrg.45738.2",
+            "fields": {
+                "gene_id":               "mstrg.45738",
+                "chrom":                 "chr21",
+                "strand":                "-",
+                "has_orf":               true,
+                "orf_nt_len":            null,
+                "orf_aa_len":            null,
+                "utr5_nt_len":           null,
+                "utr3_nt_len":           null,
+                "coding_class":          "noncoding",
+                "total_junctions":       6,
+                "utr5_junctions":        null,
+                "cds_junctions":         null,
+                "utr3_junctions":        null,
+                "stop_to_last_EJ":       null,
+                "NMD_sensitive":         false,
+                "kozak_strength":        null,
+                "kozak_sequence":        null,
+                "has_uORF":              false
+            }
+        }
+    ]
+}

@@ -81,42 +81,45 @@ def build_cds_features(gtf_db, best_orfs):
                 end_coord = max(exon.start, exon.end)
             else:
                 feature = "CDS"
-                start_coord=min(cds_start_gen, cds_end_gen)
-                end_coord=max(cds_start_gen, cds_end_gen)
-                
-                if ((exon.end-end_coord) > 0) or ((exon.start-start_coord) < 0):
+                start_coord = min(cds_start_gen, cds_end_gen)
+                end_coord   = max(cds_start_gen, cds_end_gen)
 
-                    # Partial UTR exon definition
-                    if (tx.strand == "-" and ((exon.start-start_coord) < 0)):                             
-                        utr_feature="three_prime_utr"
-                        utr_start_coord = cds_start_gen-abs((exon.start-start_coord))
-                        utr_end_coord = cds_start_gen - 1
-                    elif (tx.strand == "-" and ((exon.end-end_coord) > 0)):
-                        utr_feature = "five_prime_utr"
-                        utr_start_coord = cds_end_gen + 1
-                        utr_end_coord = cds_end_gen + (exon.end-end_coord)
-                    elif (tx.strand == "+" and ((exon.start-start_coord) < 0)):
-                        utr_feature="five_prime_utr"
-                        utr_start_coord=cds_start_gen - abs((exon.start-start_coord))
-                        utr_end_coord=cds_start_gen - 1                     
-                    elif (tx.strand == "+" and ((exon.end-end_coord) > 0)):
-                        utr_feature="three_prime_utr"
-                        utr_start_coord=cds_end_gen + 1
-                        utr_end_coord=cds_end_gen + (exon.end-end_coord)
-                    
-                    
+                # 5' partial UTR (upstream of CDS start within this exon)
+                if tx.strand == "+" and exon.start < start_coord:
                     cds_features.append({
-                        "seqid": exon.seqid,
-                        "source": "ORFannotate",
-                        "feature": utr_feature,
-                        "start": utr_start_coord,
-                        "end": utr_end_coord,
-                        "score": ".",
-                        "strand": tx.strand,
-                        "frame": ".",
+                        "seqid": exon.seqid, "source": "ORFannotate",
+                        "feature": "five_prime_utr",
+                        "start": exon.start, "end": start_coord - 1,
+                        "score": ".", "strand": tx.strand, "frame": ".",
                         "attributes": common_attrs,
                     })
-                
+                elif tx.strand == "-" and exon.end > end_coord:
+                    cds_features.append({
+                        "seqid": exon.seqid, "source": "ORFannotate",
+                        "feature": "five_prime_utr",
+                        "start": end_coord + 1, "end": exon.end,
+                        "score": ".", "strand": tx.strand, "frame": ".",
+                        "attributes": common_attrs,
+                    })
+
+                # 3' partial UTR (downstream of CDS end within this exon)
+                if tx.strand == "+" and exon.end > end_coord:
+                    cds_features.append({
+                        "seqid": exon.seqid, "source": "ORFannotate",
+                        "feature": "three_prime_utr",
+                        "start": end_coord + 1, "end": exon.end,
+                        "score": ".", "strand": tx.strand, "frame": ".",
+                        "attributes": common_attrs,
+                    })
+                elif tx.strand == "-" and exon.start < start_coord:
+                    cds_features.append({
+                        "seqid": exon.seqid, "source": "ORFannotate",
+                        "feature": "three_prime_utr",
+                        "start": exon.start, "end": start_coord - 1,
+                        "score": ".", "strand": tx.strand, "frame": ".",
+                        "attributes": common_attrs,
+                    })
+
             
             cds_features.append({
                     "seqid": exon.seqid,

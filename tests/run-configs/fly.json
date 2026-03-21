@@ -1,0 +1,372 @@
+{
+    "gtf": "Drosophila_melanogaster.BDGP6.54.115.chr.gtf",
+    "fasta": "Drosophila_melanogaster.BDGP6.54.dna.toplevel.fa",
+    "species": "fly",
+    "coding_cutoff": 0.39,
+    "expected_fields": [
+        {
+            "tid": "FBtr0290232",
+            "fields": {
+                "gene_id": "FBgn0283499", "chrom": "3R", "strand": "-",
+                "has_orf": true, "orf_nt_len": 6435.0, "orf_aa_len": 2144.0,
+                "utr5_nt_len": 485.0, "utr3_nt_len": 3143.0,
+                "coding_prob": 1.0, "coding_class": "coding",
+                "total_junctions": 11, "utr5_junctions": 2.0, "cds_junctions": 9.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "CGCAATATGT",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0290234",
+            "fields": {
+                "gene_id": "FBgn0030178", "chrom": "X", "strand": "-",
+                "has_orf": true, "orf_nt_len": 828.0, "orf_aa_len": 275.0,
+                "utr5_nt_len": 106.0, "utr3_nt_len": 266.0,
+                "coding_prob": 0.994033007731178, "coding_class": "coding",
+                "total_junctions": 1, "utr5_junctions": 0.0, "cds_junctions": 1.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "weak", "kozak_sequence": "AAATCTATGA",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0290235",
+            "fields": {
+                "gene_id": "FBgn0029823", "chrom": "X", "strand": "-",
+                "has_orf": true, "orf_nt_len": 1404.0, "orf_aa_len": 467.0,
+                "utr5_nt_len": 520.0, "utr3_nt_len": 130.0,
+                "coding_prob": 0.999961276351531, "coding_class": "coding",
+                "total_junctions": 1, "utr5_junctions": 0.0, "cds_junctions": 1.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "strong", "kozak_sequence": "CAGAATATGG",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0290236",
+            "fields": {
+                "gene_id": "FBgn0045470", "chrom": "3R", "strand": "-",
+                "has_orf": true, "orf_nt_len": 1188.0, "orf_aa_len": 395.0,
+                "utr5_nt_len": null, "utr3_nt_len": null,
+                "coding_prob": 0.996183972507744, "coding_class": "coding",
+                "total_junctions": 1, "utr5_junctions": 0.0, "cds_junctions": 1.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "weak", "kozak_sequence": null,
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0290237",
+            "fields": {
+                "gene_id": "FBgn0010263", "chrom": "2L", "strand": "+",
+                "has_orf": true, "orf_nt_len": 1929.0, "orf_aa_len": 642.0,
+                "utr5_nt_len": 84.0, "utr3_nt_len": 1465.0,
+                "coding_prob": 0.999976983678482, "coding_class": "coding",
+                "total_junctions": 6, "utr5_junctions": 0.0, "cds_junctions": 6.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "TAAGGAATGC",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0290238",
+            "fields": {
+                "gene_id": "FBgn0010263", "chrom": "2L", "strand": "+",
+                "has_orf": true, "orf_nt_len": 1944.0, "orf_aa_len": 647.0,
+                "utr5_nt_len": 84.0, "utr3_nt_len": 1465.0,
+                "coding_prob": 0.999979361358165, "coding_class": "coding",
+                "total_junctions": 7, "utr5_junctions": 0.0, "cds_junctions": 7.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "TAAGGAATGC",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0290239",
+            "fields": {
+                "gene_id": "FBgn0051759", "chrom": "2L", "strand": "+",
+                "has_orf": true, "orf_nt_len": 1812.0, "orf_aa_len": 603.0,
+                "utr5_nt_len": 180.0, "utr3_nt_len": 200.0,
+                "coding_prob": 0.999948181073992, "coding_class": "coding",
+                "total_junctions": 0, "utr5_junctions": 0.0, "cds_junctions": 0.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": null, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "ACATTGATGG",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0290240",
+            "fields": {
+                "gene_id": "FBgn0051759", "chrom": "2L", "strand": "+",
+                "has_orf": true, "orf_nt_len": 1812.0, "orf_aa_len": 603.0,
+                "utr5_nt_len": 332.0, "utr3_nt_len": 98.0,
+                "coding_prob": 0.999944562694778, "coding_class": "coding",
+                "total_junctions": 1, "utr5_junctions": 1.0, "cds_junctions": 0.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "ACATTGATGG",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0308200",
+            "fields": {
+                "gene_id": "FBgn0003380", "chrom": "X", "strand": "-",
+                "has_orf": true, "orf_nt_len": 1935.0, "orf_aa_len": 644.0,
+                "utr5_nt_len": 1995.0, "utr3_nt_len": 208.0,
+                "coding_prob": 0.999807817182886, "coding_class": "coding",
+                "total_junctions": 15, "utr5_junctions": 4.0, "cds_junctions": 10.0, "utr3_junctions": 1.0,
+                "stop_to_last_EJ": 7.0, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "GCCAAGATGA",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0308201",
+            "fields": {
+                "gene_id": "FBgn0035533", "chrom": "3L", "strand": "-",
+                "has_orf": true, "orf_nt_len": 1935.0, "orf_aa_len": 644.0,
+                "utr5_nt_len": 102.0, "utr3_nt_len": 1385.0,
+                "coding_prob": 0.999992398516155, "coding_class": "coding",
+                "total_junctions": 11, "utr5_junctions": 0.0, "cds_junctions": 11.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "weak", "kozak_sequence": "AAACAAATGC",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0308202",
+            "fields": {
+                "gene_id": "FBgn0035533", "chrom": "3L", "strand": "-",
+                "has_orf": true, "orf_nt_len": 1872.0, "orf_aa_len": 623.0,
+                "utr5_nt_len": 102.0, "utr3_nt_len": 1385.0,
+                "coding_prob": 0.999988578379863, "coding_class": "coding",
+                "total_junctions": 11, "utr5_junctions": 0.0, "cds_junctions": 11.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "weak", "kozak_sequence": "AAACAAATGC",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0308204",
+            "fields": {
+                "gene_id": "FBgn0036958", "chrom": "3L", "strand": "-",
+                "has_orf": true, "orf_nt_len": 2319.0, "orf_aa_len": 772.0,
+                "utr5_nt_len": 437.0, "utr3_nt_len": 197.0,
+                "coding_prob": 0.999999754986244, "coding_class": "coding",
+                "total_junctions": 2, "utr5_junctions": 1.0, "cds_junctions": 1.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "strong", "kozak_sequence": "CCAAACATGG",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0308205",
+            "fields": {
+                "gene_id": "FBgn0050343", "chrom": "2R", "strand": "+",
+                "has_orf": true, "orf_nt_len": null, "orf_aa_len": null,
+                "utr5_nt_len": null, "utr3_nt_len": null,
+                "coding_prob": 0.191633560925657, "coding_class": "noncoding",
+                "total_junctions": 4, "utr5_junctions": null, "cds_junctions": null, "utr3_junctions": null,
+                "stop_to_last_EJ": null, "NMD_sensitive": false,
+                "kozak_strength": null, "kozak_sequence": null,
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0308206",
+            "fields": {
+                "gene_id": "FBgn0020621", "chrom": "2R", "strand": "-",
+                "has_orf": true, "orf_nt_len": 3783.0, "orf_aa_len": 1260.0,
+                "utr5_nt_len": 420.0, "utr3_nt_len": 228.0,
+                "coding_prob": 0.999999999997155, "coding_class": "coding",
+                "total_junctions": 10, "utr5_junctions": 1.0, "cds_junctions": 9.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "TAAACCATGT",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0308207",
+            "fields": {
+                "gene_id": "FBgn0029518", "chrom": "X", "strand": "-",
+                "has_orf": true, "orf_nt_len": 603.0, "orf_aa_len": 200.0,
+                "utr5_nt_len": 60.0, "utr3_nt_len": 172.0,
+                "coding_prob": 0.965966084294339, "coding_class": "coding",
+                "total_junctions": 1, "utr5_junctions": 0.0, "cds_junctions": 1.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "CAAGCTATGA",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0308208",
+            "fields": {
+                "gene_id": "FBgn0005427", "chrom": "X", "strand": "-",
+                "has_orf": true, "orf_nt_len": 1812.0, "orf_aa_len": 603.0,
+                "utr5_nt_len": 819.0, "utr3_nt_len": 958.0,
+                "coding_prob": 0.999932276812347, "coding_class": "coding",
+                "total_junctions": 5, "utr5_junctions": 1.0, "cds_junctions": 4.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "ATCGAAATGC",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0308209",
+            "fields": {
+                "gene_id": "FBgn0005427", "chrom": "X", "strand": "-",
+                "has_orf": true, "orf_nt_len": 2274.0, "orf_aa_len": 757.0,
+                "utr5_nt_len": 819.0, "utr3_nt_len": 958.0,
+                "coding_prob": 0.99999858336761, "coding_class": "coding",
+                "total_junctions": 6, "utr5_junctions": 1.0, "cds_junctions": 5.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "ATCGAAATGC",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0339559",
+            "fields": {
+                "gene_id": "FBgn0032889", "chrom": "2L", "strand": "+",
+                "has_orf": true, "orf_nt_len": 1101.0, "orf_aa_len": 366.0,
+                "utr5_nt_len": 99.0, "utr3_nt_len": 109.0,
+                "coding_prob": 0.999541345997705, "coding_class": "coding",
+                "total_junctions": 4, "utr5_junctions": 0.0, "cds_junctions": 4.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "ATAAAAATGA",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0339560",
+            "fields": {
+                "gene_id": "FBgn0032889", "chrom": "2L", "strand": "+",
+                "has_orf": true, "orf_nt_len": 981.0, "orf_aa_len": 326.0,
+                "utr5_nt_len": 402.0, "utr3_nt_len": 129.0,
+                "coding_prob": 0.998666153927469, "coding_class": "coding",
+                "total_junctions": 4, "utr5_junctions": 1.0, "cds_junctions": 3.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "CGCACCATGT",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0339561",
+            "fields": {
+                "gene_id": "FBgn0032889", "chrom": "2L", "strand": "+",
+                "has_orf": true, "orf_nt_len": 1152.0, "orf_aa_len": 383.0,
+                "utr5_nt_len": 85.0, "utr3_nt_len": 109.0,
+                "coding_prob": 0.999723817946312, "coding_class": "coding",
+                "total_junctions": 3, "utr5_junctions": 0.0, "cds_junctions": 3.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "weak", "kozak_sequence": "GTGCGTATGC",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0339562",
+            "fields": {
+                "gene_id": "FBgn0051673", "chrom": "2L", "strand": "+",
+                "has_orf": true, "orf_nt_len": 978.0, "orf_aa_len": 325.0,
+                "utr5_nt_len": 61.0, "utr3_nt_len": 182.0,
+                "coding_prob": 0.99660347612577, "coding_class": "coding",
+                "total_junctions": 3, "utr5_junctions": 0.0, "cds_junctions": 3.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "CCCGAAATGT",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0339563",
+            "fields": {
+                "gene_id": "FBgn0051674", "chrom": "2L", "strand": "+",
+                "has_orf": true, "orf_nt_len": 984.0, "orf_aa_len": 327.0,
+                "utr5_nt_len": 145.0, "utr3_nt_len": 76.0,
+                "coding_prob": 0.995426529162308, "coding_class": "coding",
+                "total_junctions": 4, "utr5_junctions": 1.0, "cds_junctions": 3.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "CTTAAAATGT",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0339564",
+            "fields": {
+                "gene_id": "FBgn0051676", "chrom": "2L", "strand": "+",
+                "has_orf": true, "orf_nt_len": 480.0, "orf_aa_len": 159.0,
+                "utr5_nt_len": 228.0, "utr3_nt_len": 399.0,
+                "coding_prob": 0.884096015957796, "coding_class": "coding",
+                "total_junctions": 2, "utr5_junctions": 0.0, "cds_junctions": 2.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "strong", "kozak_sequence": "TGTATCATGG",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0339565",
+            "fields": {
+                "gene_id": "FBgn0032894", "chrom": "2L", "strand": "+",
+                "has_orf": true, "orf_nt_len": 831.0, "orf_aa_len": 276.0,
+                "utr5_nt_len": 86.0, "utr3_nt_len": 103.0,
+                "coding_prob": 0.969979453584681, "coding_class": "coding",
+                "total_junctions": 0, "utr5_junctions": 0.0, "cds_junctions": 0.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": null, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "TCCGAAATGT",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0339566",
+            "fields": {
+                "gene_id": "FBgn0265366", "chrom": "2L", "strand": "-",
+                "has_orf": true, "orf_nt_len": null, "orf_aa_len": null,
+                "utr5_nt_len": null, "utr3_nt_len": null,
+                "coding_prob": 0.0155203401145829, "coding_class": "noncoding",
+                "total_junctions": 1, "utr5_junctions": null, "cds_junctions": null, "utr3_junctions": null,
+                "stop_to_last_EJ": null, "NMD_sensitive": false,
+                "kozak_strength": null, "kozak_sequence": null,
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0339567",
+            "fields": {
+                "gene_id": "FBgn0028986", "chrom": "2L", "strand": "-",
+                "has_orf": true, "orf_nt_len": 1113.0, "orf_aa_len": 370.0,
+                "utr5_nt_len": 11.0, "utr3_nt_len": 68.0,
+                "coding_prob": 0.998479245397722, "coding_class": "coding",
+                "total_junctions": 3, "utr5_junctions": 0.0, "cds_junctions": 3.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "moderate", "kozak_sequence": "TGTATAATGA",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0300126",
+            "fields": {
+                "gene_id": "FBgn0051361", "chrom": "3R", "strand": "+",
+                "has_orf": true, "orf_nt_len": 1527.0, "orf_aa_len": 508.0,
+                "utr5_nt_len": 699.0, "utr3_nt_len": 383.0,
+                "coding_prob": 0.999636517393801, "coding_class": "coding",
+                "total_junctions": 6, "utr5_junctions": 1.0, "cds_junctions": 4.0, "utr3_junctions": 1.0,
+                "stop_to_last_EJ": 50.0, "NMD_sensitive": false,
+                "kozak_strength": "weak", "kozak_sequence": "AGTCCAATGA",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "FBtr0300127",
+            "fields": {
+                "gene_id": "FBgn0033980", "chrom": "2R", "strand": "+",
+                "has_orf": true, "orf_nt_len": 1281.0, "orf_aa_len": 426.0,
+                "utr5_nt_len": 238.0, "utr3_nt_len": 282.0,
+                "coding_prob": 0.999468606926229, "coding_class": "coding",
+                "total_junctions": 1, "utr5_junctions": 0.0, "cds_junctions": 1.0, "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, "NMD_sensitive": false,
+                "kozak_strength": "weak", "kozak_sequence": "TTTTATATGT",
+                "has_uORF": false, "coding_prob_best_uORF": null
+            }
+        }
+    ]
+}

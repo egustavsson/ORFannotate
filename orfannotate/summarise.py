@@ -102,7 +102,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
     
         # Get all CDS exons
         cds_feats = list(children(tx, featuretype="CDS", order_by="start"))
-        
+      
         orf_end_gen = None
         if cds_feats:
             if strand == "+":
@@ -137,16 +137,29 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
             orf_aa_len = len(aa_seq)
             kozak_strength, kozak_seq = score_kozak(full_seq, orf_start)
 
-        
-        if has_orf and orf_end_gen is not None and cds_feats:
-            last_j = cds_feats[-1].end if strand == '+' else cds_feats[0].start
-            stop_to_last_ej = last_j - orf_end_gen if strand == '+' else orf_end_gen - last_j
+
+        # Get exon features for last_ej and NMD prediction
+        exon_feats = [
+            f for f in children(tx, featuretype="exon", order_by="start")
+            if f.attributes.get("transcript_id", [None])[0] == tid
+        ]   
+        if has_orf and orf_end_gen is not None and len(exon_feats) >= 2:
+            if strand == '+':
+                # Junctions downstream of stop = exon ends after orf_end_gen, excluding last exon
+                ej_positions = [f.end for f in exon_feats[:-1] if f.end > orf_end_gen]
+                stop_to_last_ej = (ej_positions[-1] - orf_end_gen) if ej_positions else 0
+            else:
+                # Junctions downstream of stop (upstream in genomic) = exon starts before orf_end_gen, excluding first exon
+                ej_positions = [f.start for f in exon_feats[1:] if f.start < orf_end_gen]
+                stop_to_last_ej = (orf_end_gen - ej_positions[0]) if ej_positions else 0
+        else:
+            stop_to_last_ej = None
+
+        # NMD prediction following the 50 bp rule        
+        nmd_flag = predict_nmd(orf_end_gen, exon_feats, strand) if coding_class == "coding" else "FALSE"
 
 
-        nmd_flag = predict_nmd(orf_end_gen, cds_feats, strand) if coding_class == "coding" else "FALSE"
-        
-
-        # UTR junction count 
+        # Junction count 
         if coding_class == "coding":
             utr5_exons = list(children(tx, featuretype="five_prime_utr"))
             utr3_exons = list(children(tx, featuretype="three_prime_utr"))
@@ -176,7 +189,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
             if utr3_len is not None:
                 utr3_records.append(SeqRecord(Seq(utr3_seq), id=tid, description=desc))
         
-        
+
         
         summary.append({
             "transcript_id": tid,

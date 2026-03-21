@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from collections import defaultdict, OrderedDict
 
-from orfannotate.utils import _build_tx_lookup, _extract_tid_from_attrs, TRANSCRIPT_LIKE_FEATURES
+from orfannotate.utils import _build_tx_lookup, _extract_tid_from_attrs, TRANSCRIPT_LIKE_FEATURES, _normalize_tid
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,13 @@ def build_cds_features(gtf_db, best_orfs):
     cds_features = []
 
     for tid, orf in best_orfs.items():
-        tx = tx_lookup.get(tid) or tx_lookup.get(tid.split('.')[0])
+        tid_base = tid.split(".")[0]
+        tx = (
+            tx_lookup.get(tid)
+            or tx_lookup.get(tid_base)
+            or tx_lookup.get(_normalize_tid(tid))
+            or tx_lookup.get(_normalize_tid(tid_base))
+        )
         
         if tx is None:
             logger.warning(f"[CDS] No transcript found for {tid}")
@@ -58,7 +64,7 @@ def build_cds_features(gtf_db, best_orfs):
 
             common_attrs = {
                 "gene_id":      tx.attributes.get("gene_id", [""])[0],
-                "transcript_id": tid,
+                "transcript_id": tx.attributes.get("transcript_id", [tid])[0],
                 "gene_name":    tx.attributes.get("gene_name", [""])[0],
                 "ref_gene_id":  tx.attributes.get("ref_gene_id", [""])[0],
             }
@@ -75,42 +81,45 @@ def build_cds_features(gtf_db, best_orfs):
                 end_coord = max(exon.start, exon.end)
             else:
                 feature = "CDS"
-                start_coord=min(cds_start_gen, cds_end_gen)
-                end_coord=max(cds_start_gen, cds_end_gen)
-                
-                if ((exon.end-end_coord) > 0) or ((exon.start-start_coord) < 0):
+                start_coord = min(cds_start_gen, cds_end_gen)
+                end_coord   = max(cds_start_gen, cds_end_gen)
 
-                    # Partial UTR exon definition
-                    if (tx.strand == "-" and ((exon.start-start_coord) < 0)):                             
-                        utr_feature="three_prime_utr"
-                        utr_start_coord = cds_start_gen-abs((exon.start-start_coord))
-                        utr_end_coord = cds_start_gen - 1
-                    elif (tx.strand == "-" and ((exon.end-end_coord) > 0)):
-                        utr_feature = "five_prime_utr"
-                        utr_start_coord = cds_end_gen + 1
-                        utr_end_coord = cds_end_gen + (exon.end-end_coord)
-                    elif (tx.strand == "+" and ((exon.start-start_coord) < 0)):
-                        utr_feature="five_prime_utr"
-                        utr_start_coord=cds_start_gen - abs((exon.start-start_coord))
-                        utr_end_coord=cds_start_gen - 1                     
-                    elif (tx.strand == "+" and ((exon.end-end_coord) > 0)):
-                        utr_feature="three_prime_utr"
-                        utr_start_coord=cds_end_gen + 1
-                        utr_end_coord=cds_end_gen + (exon.end-end_coord)
-                    
-                    
+                # 5' partial UTR (upstream of CDS start within this exon)
+                if tx.strand == "+" and exon.start < start_coord:
                     cds_features.append({
-                        "seqid": exon.seqid,
-                        "source": "ORFannotate",
-                        "feature": utr_feature,
-                        "start": utr_start_coord,
-                        "end": utr_end_coord,
-                        "score": ".",
-                        "strand": tx.strand,
-                        "frame": ".",
+                        "seqid": exon.seqid, "source": "ORFannotate",
+                        "feature": "five_prime_utr",
+                        "start": exon.start, "end": start_coord - 1,
+                        "score": ".", "strand": tx.strand, "frame": ".",
                         "attributes": common_attrs,
                     })
-                
+                elif tx.strand == "-" and exon.end > end_coord:
+                    cds_features.append({
+                        "seqid": exon.seqid, "source": "ORFannotate",
+                        "feature": "five_prime_utr",
+                        "start": end_coord + 1, "end": exon.end,
+                        "score": ".", "strand": tx.strand, "frame": ".",
+                        "attributes": common_attrs,
+                    })
+
+                # 3' partial UTR (downstream of CDS end within this exon)
+                if tx.strand == "+" and exon.end > end_coord:
+                    cds_features.append({
+                        "seqid": exon.seqid, "source": "ORFannotate",
+                        "feature": "three_prime_utr",
+                        "start": end_coord + 1, "end": exon.end,
+                        "score": ".", "strand": tx.strand, "frame": ".",
+                        "attributes": common_attrs,
+                    })
+                elif tx.strand == "-" and exon.start < start_coord:
+                    cds_features.append({
+                        "seqid": exon.seqid, "source": "ORFannotate",
+                        "feature": "three_prime_utr",
+                        "start": exon.start, "end": start_coord - 1,
+                        "score": ".", "strand": tx.strand, "frame": ".",
+                        "attributes": common_attrs,
+                    })
+
             
             cds_features.append({
                     "seqid": exon.seqid,

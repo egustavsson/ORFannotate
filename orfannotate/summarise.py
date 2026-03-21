@@ -16,7 +16,7 @@ from rich.progress import Progress
 # Internal modules
 from orfannotate.nmd import predict_nmd
 from orfannotate.kozak import score_kozak
-from orfannotate.utils import _load_transcript_sequences, _map_junctions_to_tx, _create_db
+from orfannotate.utils import _load_transcript_sequences, _map_junctions_to_tx, _create_db, _normalize_tid
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(format="%(levelname)s:%(name)s:%(message)s", level=logging.INFO)
@@ -45,8 +45,12 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
     utr5_records = []
     utr3_records = []
 
-    all_tx_ids = {t.id for t in db.features_of_type("transcript")}
-    all_tx_ids &= set(transcript_seqs.keys())
+    fasta_ids_norm = {_normalize_tid(tid) for tid in transcript_seqs.keys()}
+    
+    all_tx_ids = {
+        tid for tid in (t.id for t in db.features_of_type("transcript"))
+        if _normalize_tid(tid) in fasta_ids_norm
+    }
     
     children = db.children
     
@@ -54,8 +58,29 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
 
     for tid in sorted(all_tx_ids): 
         
-        has_orf = tid in best_orfs
-        orf_data = best_orfs.get(tid, None)
+        # Set all variables initially to None
+        orf_start = orf_end_tx = None
+        coding_prob = None
+        nt_seq = aa_seq = None
+        orf_nt_len = orf_aa_len = None
+        kozak_strength = kozak_seq = None
+        stop_to_last_ej = None
+        utr5_seq = utr3_seq = None
+        utr5_len = utr3_len = None
+        utr5_junctions = cds_junctions = utr3_junctions = None
+
+        tid_base = tid.split(".")[0]
+        tid_norm = _normalize_tid(tid)
+        tid_base_norm = _normalize_tid(tid_base)
+        
+        orf_data = (
+            best_orfs.get(tid)
+            or best_orfs.get(tid_base)
+            or best_orfs.get(tid_norm)
+            or best_orfs.get(tid_base_norm)
+        )
+        
+        has_orf = orf_data is not None
         
         try:
             tx = db[tid]
@@ -74,13 +99,10 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
             orf_start = orf_data["start"]
             orf_end_tx = orf_data["end"]
             coding_prob = orf_data["coding_prob"]
-        else:
-            orf_start = orf_end_tx = "NA"
-            coding_prob = "NA"
     
         # Get all CDS exons
         cds_feats = list(children(tx, featuretype="CDS", order_by="start"))
-        
+      
         orf_end_gen = None
         if cds_feats:
             if strand == "+":
@@ -94,7 +116,18 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
             else "noncoding"
         )
         
-        full_seq = str(transcript_seqs[tid].seq)
+        seq_record = (
+            transcript_seqs.get(tid)
+            or transcript_seqs.get(tid_base)
+            or transcript_seqs.get(tid_norm)
+            or transcript_seqs.get(tid_base_norm)
+        )
+        
+        if seq_record is None:
+            continue
+        
+        full_seq = str(seq_record.seq)
+        
         seq_len = len(full_seq)
 
         if coding_class == "coding":
@@ -103,22 +136,30 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
             orf_nt_len = orf_end_tx - orf_start + 1
             orf_aa_len = len(aa_seq)
             kozak_strength, kozak_seq = score_kozak(full_seq, orf_start)
+
+
+        # Get exon features for last_ej and NMD prediction
+        exon_feats = [
+            f for f in children(tx, featuretype="exon", order_by="start")
+            if f.attributes.get("transcript_id", [None])[0] == tid
+        ]   
+        if has_orf and orf_end_gen is not None and len(exon_feats) >= 2:
+            if strand == '+':
+                # Junctions downstream of stop = exon ends after orf_end_gen, excluding last exon
+                ej_positions = [f.end for f in exon_feats[:-1] if f.end > orf_end_gen]
+                stop_to_last_ej = (ej_positions[-1] - orf_end_gen) if ej_positions else 0
+            else:
+                # Junctions downstream of stop (upstream in genomic) = exon starts before orf_end_gen, excluding first exon
+                ej_positions = [f.start for f in exon_feats[1:] if f.start < orf_end_gen]
+                stop_to_last_ej = (orf_end_gen - ej_positions[0]) if ej_positions else 0
         else:
-            nt_seq = aa_seq = "NA"
-            orf_nt_len = orf_aa_len = "NA"
-            kozak_strength = kozak_seq = "NA"
+            stop_to_last_ej = None
 
-        
-        if has_orf and orf_end_gen is not None and cds_feats:
-            last_j = cds_feats[-1].end if strand == '+' else cds_feats[0].start
-            stop_to_last_ej = last_j - orf_end_gen if strand == '+' else orf_end_gen - last_j
-        else:
-            stop_to_last_ej = "NA"
+        # NMD prediction following the 50 bp rule        
+        nmd_flag = predict_nmd(orf_end_gen, exon_feats, strand) if coding_class == "coding" else "FALSE"
 
-        nmd_flag = predict_nmd(orf_end_gen, cds_feats, strand) if coding_class == "coding" else "FALSE"
-        
 
-        # UTR junction count 
+        # Junction count 
         if coding_class == "coding":
             utr5_exons = list(children(tx, featuretype="five_prime_utr"))
             utr3_exons = list(children(tx, featuretype="three_prime_utr"))
@@ -127,13 +168,10 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
             cds_junctions = len(cds_feats)-1 if len(cds_feats) > 1 else 0
             total_junctions = (utr5_junctions + cds_junctions + utr3_junctions)
         else:
-            utr5_junctions = cds_junctions = utr3_junctions = "NA"
             total_junctions = len(list(children(tx, featuretype="exon")))
         
         
         # UTR length calculation
-        utr5_seq = utr3_seq = "NA"
-        utr5_len = utr3_len = "NA"
         if coding_class == "coding":
             if orf_start > 1:
                 utr5_seq = full_seq[:orf_start - 1]
@@ -146,12 +184,12 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
             cds_records.append(SeqRecord(Seq(nt_seq), id=tid, description=desc))
             protein_records.append(SeqRecord(Seq(aa_seq), id=tid, description=desc))
 
-            if utr5_len != "NA":
+            if utr5_len is not None:
                 utr5_records.append(SeqRecord(Seq(utr5_seq), id=tid, description=desc))
-            if utr3_len != "NA":
+            if utr3_len is not None:
                 utr3_records.append(SeqRecord(Seq(utr3_seq), id=tid, description=desc))
         
-        
+
         
         summary.append({
             "transcript_id": tid,
@@ -160,7 +198,7 @@ def generate_summary(best_orfs, transcript_fa, gtf_db_or_path, output_path, outp
             "strand": strand,
             "transcript_start": tx_start,
             "transcript_end": tx_end,
-            "has_orf": "TRUE" if has_orf else "FALSE",
+            "has_orf": has_orf,
             "orf_nt_len": orf_nt_len,
             "orf_aa_len": orf_aa_len,
             "utr5_nt_len": utr5_len,

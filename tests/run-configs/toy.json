@@ -1,0 +1,58 @@
+{
+    "gtf": "tests/test_data/toy.gtf",
+    "fasta": "tests/test_data/toy.fa",
+    "species": "human",
+    "coding_cutoff": 0.364,
+    "expected_fields": [
+        {
+            "tid": "ENST00000284987.6",
+            "fields": {
+                "gene_id": "ENSG00000154736.6", 
+                "chrom": "chr21", 
+                "strand": "-",
+                "has_orf": true, 
+                "orf_nt_len": 2793.0, 
+                "orf_aa_len": 930.0,
+                "utr5_nt_len": 697.0, 
+                "utr3_nt_len": 6131.0,
+                "coding_prob": 0.999999999998383, 
+                "coding_class": "coding",
+                "total_junctions": 7, 
+                "utr5_junctions": 0.0, 
+                "cds_junctions": 7.0, 
+                "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, 
+                "NMD_sensitive": false,
+                "kozak_strength": "moderate", 
+                "kozak_sequence": "CGCACTATGC",
+                "has_uORF": false, 
+                "coding_prob_best_uORF": null
+            }
+        },
+        {
+            "tid": "ENST00000652031.1",
+            "fields": {
+                "gene_id": "ENSG00000154736.6", 
+                "chrom": "chr21", 
+                "strand": "-",
+                "has_orf": true, 
+                "orf_nt_len": 1506.0, 
+                "orf_aa_len": 501.0,
+                "utr5_nt_len": 613.0, 
+                "utr3_nt_len": 1474.0,
+                "coding_prob": 0.999993874237341, 
+                "coding_class": "coding",
+                "total_junctions": 8, 
+                "utr5_junctions": 3.0, 
+                "cds_junctions": 5.0, 
+                "utr3_junctions": 0.0,
+                "stop_to_last_EJ": 0.0, 
+                "NMD_sensitive": false,
+                "kozak_strength": "moderate", 
+                "kozak_sequence": "GAAGCCATGT",
+                "has_uORF": true, 
+                "coding_prob_best_uORF": 0.99263740921851
+            }
+        }
+    ]
+}

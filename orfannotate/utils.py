@@ -30,6 +30,13 @@ TRANSCRIPT_LIKE_FEATURES = {
     "ncRNA",
 }
 
+# CPAT uppercases IDs  but some GTFs have lowercase transcript_ids, so we normalise to uppercase for lookups.
+def _normalize_tid(tid):
+    if tid is None:
+        return None
+    return str(tid).upper()
+
+
 def _check_seqid_compatibility(db, genome, max_missing_examples: int = 20):
     """
     Check whether all seqids (contig/chromosome names) referenced in the annotation
@@ -48,14 +55,13 @@ def _check_seqid_compatibility(db, genome, max_missing_examples: int = 20):
 
     missing = annotation_seqids - fasta_seqids
     if missing:
-        example_missing = sorted(list(missing))[:max_missing_examples]
         example_fasta = sorted(list(fasta_seqids))[:10]
 
         msg = (
             "Sequence ID mismatch between annotation and FASTA.\n"
-            f"Missing annotation seqids not found in FASTA (example): {example_missing}\n"
-            f"Example FASTA seqids: {example_fasta}\n"
-            f"Total missing seqids: {len(missing)} (out of {len(annotation_seqids)} in the annotation).\n"
+            f"Missing annotation seqids not found in FASTA: {missing}\n"
+            f"FASTA seqids: {fasta_seqids}\n"
+            f"Total missing seqids: {len(missing)} (out of {len(annotation_seqids)} in the GTF annotation).\n"
             "One or more contigs present in the annotation were not found in the FASTA. "
             "This usually means the files come from different genome builds or use different "
             "naming conventions (for example '3' vs 'chr3'). Please ensure both files originate "
@@ -405,13 +411,18 @@ class _ColoredTaskProgressColumn(TaskProgressColumn):
         base = super().render(task)
         return Text(str(base), style=self._style)
 
+
 def _build_tx_lookup(db):
     lut = {}
     for ftype in TRANSCRIPT_LIKE_FEATURES:
         for tx in db.features_of_type(ftype):
             tid_full = tx.attributes["transcript_id"][0]
+            tid_base = tid_full.split(".")[0]
+
             lut[tid_full] = tx
-            lut[tid_full.split(".")[0]] = tx
+            lut[tid_base] = tx
+            lut[_normalize_tid(tid_full)] = tx
+            lut[_normalize_tid(tid_base)] = tx
     return lut
 
 

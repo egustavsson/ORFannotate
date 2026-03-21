@@ -27,5 +27,9 @@ output/
 # IDEs and notebooks
 .vscode/
 slurm
-tests
 scripts
+tmp
+
+tests/test*
+!tests
+!tests/*py

@@ -1,7 +1,7 @@
 # Classify the Kozak sequence around the start codon.
 def score_kozak(seq, orf_start):
     if orf_start < 7 or orf_start + 3 >= len(seq):
-        return "weak", "NA"
+        return "NA", "NA"
 
     context = seq[orf_start - 7 : orf_start + 3].upper()  # 6 upstream + start codon + 1
     if len(context) < 10:

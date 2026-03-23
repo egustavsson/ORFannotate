@@ -25,5 +25,5 @@ def test_short_sequence_returns_na():
     seq   = "ATG"
     start = 2
     strength, context = score_kozak(seq, start)
-    assert strength == "weak"
+    assert strength == "NA"
     assert context == "NA"

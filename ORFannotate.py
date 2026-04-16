@@ -201,9 +201,7 @@ def main():
             # Check that at least one 5'UTR sequence is above the minimum length threshold
             all_short = all(len(rec.seq) < ((min_length_uorf*3)+10) for rec in utr5_records)
             if all_short:
-                raise ValueError(
-                    f"All 5'UTR sequences are shorter than the minimum '{min_length_uorf}' amino acids uORF length configured. Eg, 'min_length_uorf=100', requires at least 300 nt plus start and stop codon constraints."
-                )
+                logger.warning("All 5'UTR sequences are shorter than the minimum '{min_length_uorf}' amino acids uORF length configured. Eg, 'min_length_uorf=100', requires at least 300 nt plus start and stop codon constraints. Skipping uORF prediction step.")
             else:
                 predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_orf, min_length_uorf)
         

@@ -1,5 +1,6 @@
 import os
 import re
+import json
 import shutil
 import logging
 import gffutils
@@ -175,7 +176,7 @@ def _create_db(gtf_path, only_exons=True):
     return annotated_db
 
 
-def _print_top_database_info(db):
+def _print_top_database_info(db, attr=False):
     """
     Print the first 10 rows of the gffutils database for debugging.
     :param db: Database object created by gffutils
@@ -183,7 +184,7 @@ def _print_top_database_info(db):
     conn = db.conn  # connection gffutils uses internally
 
     try:
-        rows = conn.execute("SELECT * FROM features LIMIT 10").fetchall()
+        rows = conn.execute("SELECT * FROM features LIMIT 100").fetchall()
     except Exception as e:
         print("Error querying database:", e)
         raise
@@ -192,7 +193,15 @@ def _print_top_database_info(db):
         raise RuntimeError("Database is empty or has no entries in 'features' table.")
 
     df = pd.DataFrame([dict(row) for row in rows])
-    print(df)
+
+    # # Parse and expand attributes column
+    if attr:
+        df["attributes"] = df["attributes"].apply(lambda x: json.loads(x) if isinstance(x, str) else x)
+        
+        with pd.option_context("display.max_rows", 100, "display.max_columns", None, "display.width", None, "display.max_colwidth", None):
+            print(df[["id", "featuretype", "start", "end", "attributes"]])
+    else:
+        print(df)
 
 
 def _make_slim_gtf(in_gtf, only_exons=True, essential_keys=None):
@@ -266,7 +275,7 @@ def _make_slim_gtf(in_gtf, only_exons=True, essential_keys=None):
         in_gtf_to_use = in_path
 
     slim_gtf_path = tmp_dir / "slim.gtf"
-
+    
     with open(in_gtf_to_use, "rt", encoding="utf-8") as inp, open(
         slim_gtf_path, "wt", encoding="utf-8"
     ) as out:
@@ -299,6 +308,7 @@ def _make_slim_gtf(in_gtf, only_exons=True, essential_keys=None):
                     new_attrs.append(f'{key} "{attrs_dict[key]}"')
 
             fields[8] = ("; ".join(new_attrs) + ";") if new_attrs else "."
+            
             out.write("\t".join(fields) + "\n")
 
     return slim_gtf_path

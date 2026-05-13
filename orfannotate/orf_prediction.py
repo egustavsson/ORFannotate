@@ -2,9 +2,14 @@ import os
 import subprocess
 import logging
 import pandas as pd
+from Bio import SeqIO
+
 
 from orfannotate.orf_filter import get_best_orfs_by_cpat
 from orfannotate.utils import _normalize_tid
+from orfannotate.nmd import predict_nmd
+from orfannotate.kozak import score_kozak
+from orfannotate.gtf_annotation import build_cds_features, annotate_gtf_with_cds
 
 logger = logging.getLogger(__name__)
 
@@ -40,12 +45,14 @@ def run_cpat(transcript_fasta, output_dir, hexamer_path, logit_model_path, top_o
 
     return output_file
 
-def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_orf, min_length_uorf):
+def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_orf, min_length_uorf, gtf_db, gtf_path):
     """
     Run CPAT per-transcript only in 5'UTR sequences:
       - Ensure only non-overlapping uORFs above a certain protein cutoff are selected
       - Incorporate selected uORFs to the 'summary.tsv' file
+      - Generate GTF file with selected uORFs
     """
+
     # Canonical ORF 
     canonical_orf_cpat_dir = os.path.join(output_dir, "CPAT")
     canonical_orf_cpat_df = pd.read_csv(os.path.join(canonical_orf_cpat_dir, "cpat.ORF_prob.best.tsv"), sep="\t")
@@ -55,7 +62,8 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
     os.makedirs(uorf_cpat_dir, exist_ok=True)
 
     # Run CPAT in current 5'UTR sequences alone
-    run_cpat(os.path.join(output_dir, "utr5.fa"), uorf_cpat_dir, hexamer_path, logit_model_path, top_orf, min_length_orf = min_length_uorf)
+    utr5_fasta_path = os.path.join(output_dir, "utr5.fa")
+    run_cpat(utr5_fasta_path, uorf_cpat_dir, hexamer_path, logit_model_path, top_orf, min_length_orf = min_length_uorf)
  
     # Get best uORF 
     uorf_cpat_results = os.path.join(uorf_cpat_dir, "cpat.ORF_prob.best.tsv")
@@ -74,21 +82,108 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
     )
     
     # Filter uORFs so that only TRUE uORFs remain (end < canonical ORF start)
+    # Initialize selected_uorfs for ALL transcripts
     selected_uorfs = {}
-    for tx, uorf in best_uorf.items():
 
-        orf_start = canon_orf_start.get(_normalize_tid(tx))
+    all_transcripts = set(
+        canonical_orf_cpat_df["norm_seq_ID"]
+    ).union(set(best_uorf.keys()))
 
-        if orf_start is None:
-            # no canonical ORF found > skip
-            selected_uorfs[tx] = None
+    for tx in all_transcripts:
+
+        selected_uorfs[tx] = {
+            "coding_prob": None,
+            "nmd_flag": "NA",
+            "kozak_strength": "NA",
+            "kozak_seq": "NA"
+        }
+
+        uorf = best_uorf.get(tx)
+        orf_start = canon_orf_start.get(tx)
+
+        # Skip if no canonical ORF
+        if orf_start is None or uorf is None:
             continue
-   
-        # Only keep uORFs ending before the canonical ORF start and with a coding probability above the cutoff
+
+        # Apply filtering
         if uorf["end"] < orf_start and uorf["coding_prob"] > coding_cutoff:
-            selected_uorfs[tx] = uorf["coding_prob"]
-        else:
-            selected_uorfs[tx] = None
+
+            selected_uorfs[tx]["coding_prob"] = uorf["coding_prob"]
+            
+
+            # ---- KOZAK prediction for uORF ----
+            try:
+                transcript_seqs = {
+                    rec.id: rec
+                    for rec in SeqIO.parse(utr5_fasta_path, "fasta")
+                }
+                seq_record = (
+                    transcript_seqs.get(tx)
+                    or transcript_seqs.get(_normalize_tid(tx))
+                )
+                
+                if seq_record is not None:
+                    # Get the uORF lengt
+                    uorf_start = int(uorf["start"])  
+                    selected_uorfs[tx]["uorf_length"] = abs(int(uorf["start"]) - int(uorf["end"]) )
+
+                    # Get the uORF sequence
+                    full_seq = str(seq_record.seq)
+                    kozak_strength, kozak_seq = score_kozak(full_seq, uorf_start)
+                    
+                    selected_uorfs[tx]["kozak_strength"] = kozak_strength
+                    selected_uorfs[tx]["kozak_seq"] = kozak_seq
+
+                else:
+                    selected_uorfs[tx]["kozak_strength"] = None
+                    selected_uorfs[tx]["kozak_seq"] = None
+
+            except Exception as e:
+                selected_uorfs[tx]["kozak_strength"] = None
+                selected_uorfs[tx]["kozak_seq"] = None
+
+           
+
+
+            # ---- NMD analysis ----
+            try:
+                db_tx = gtf_db[tx]
+                strand = db_tx.strand
+
+                exon_features = [
+                    f for f in gtf_db.children(db_tx, featuretype="exon", order_by="start")
+                    if f.attributes.get("transcript_id", [None])[0] == tx
+                ]
+
+                ## Get CDS features to determine the position of the first CDS start codon  
+                uorf_cds_features = build_cds_features(gtf_db, {tx: uorf})
+                uorf_cds_only = [f for f in uorf_cds_features if f["feature"] == "CDS"]
+                if strand == "+":
+                    first_cds_start = uorf_cds_only[0]["start"]
+                else:
+                    first_cds_start = uorf_cds_only[-1]["end"]
+                
+                # Predict NMD sensitivity for the selected uORF
+                # The ending position of the uORF is relative to the 5'UTR sequence
+                selected_uorfs[tx]["nmd_flag"] = predict_nmd(
+                    first_cds_start, exon_features, strand
+                )
+
+            except KeyError:
+                print(f"Transcript {tx} not found in GTF database for NMD prediction. Setting NMD flag to 'NA'.")
+                pass
+            
+        
+                
+    # ---- GTF -------------
+    filtered_best_uorf = {
+        tx: uorf for tx, uorf in best_uorf.items()
+        if selected_uorfs.get(tx, {}).get("coding_prob") is not None
+    }
+    cds_features = build_cds_features(gtf_db, filtered_best_uorf)
+    annotated_gtf = os.path.join(output_dir, "uORFannotate_annotated.gtf")
+    annotate_gtf_with_cds(gtf_path, cds_features, annotated_gtf)
+    
 
     # Load final summary.tsv file
     summary_tsv_path = os.path.join(output_dir, "ORFannotate_summary.tsv")
@@ -106,12 +201,33 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
     )
 
     # Update the final 'summary.tsv': add the new two uORF columns
-    orf_summary["has_uORF"] = orf_summary["transcript_id"].map(
-        lambda x: selected_uorfs.get(_normalize_tid(x)) is not None
+    # Add has_uORF flag (based on coding_prob)
+    orf_summary["norm_tid"] = orf_summary["transcript_id"].map(_normalize_tid)
+
+    orf_summary["has_uORF"] = orf_summary["norm_tid"].map(
+        lambda x: selected_uorfs.get(x, {}).get("coding_prob") is not None
     )
-    orf_summary["coding_prob_best_uORF"] = orf_summary["transcript_id"].map(
-        lambda x: selected_uorfs.get(_normalize_tid(x))
+
+    orf_summary["coding_prob_best_uORF"] = orf_summary["norm_tid"].map(
+        lambda x: selected_uorfs.get(x, {}).get("coding_prob")
     )
+
+    orf_summary["aa_length_best_uORF"] = orf_summary["norm_tid"].map(
+        lambda x: selected_uorfs.get(x, {}).get("uorf_length")
+    )
+
+    orf_summary["nmd_sensitivity_best_uORF"] = orf_summary["norm_tid"].map(
+        lambda x: selected_uorfs.get(x, {}).get("nmd_flag", "NA")
+    )
+    orf_summary["kozak_strength_best_uORF"] = orf_summary["norm_tid"].map(
+        lambda x: selected_uorfs.get(x, {}).get("kozak_strength")
+    )
+
+    orf_summary["kozak_seq_best_uORF"] = orf_summary["norm_tid"].map(
+        lambda x: selected_uorfs.get(x, {}).get("kozak_seq")
+    )
+
+    orf_summary.drop(columns=["norm_tid"], inplace=True)
    
     # Save results
     orf_summary.to_csv(summary_tsv_path,
@@ -119,3 +235,4 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
                        index=False,
                        na_rep="NA"
                        )
+    

@@ -163,7 +163,7 @@ def main():
         logger.info(f"Adding CDS to {len(coding_orfs):,} coding transcripts")
         cds_features = build_cds_features(gtf_db, coding_orfs)
         
-
+    
         # Cleanup first db
         try:
             gtf_db.conn.close()
@@ -197,13 +197,15 @@ def main():
 
         if not utr5_records:
             logger.warning("No 5'UTR sequences found. Skipping uORF prediction step.")
+        elif len(utr5_records) < 2:
+            logger.warning(f"Only {len(utr5_records)} 5'UTR sequences found. Too few for reliable uORF prediction. Skipping.")
         else:
             # Check that at least one 5'UTR sequence is above the minimum length threshold
             all_short = all(len(rec.seq) < ((min_length_uorf*3)+10) for rec in utr5_records)
             if all_short:
                 logger.warning("All 5'UTR sequences are shorter than the minimum '{min_length_uorf}' amino acids uORF length configured. Eg, 'min_length_uorf=100', requires at least 300 nt plus start and stop codon constraints. Skipping uORF prediction step.")
             else:
-                predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_orf, min_length_uorf)
+                predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_orf, min_length_uorf, slim_annotated_db, gtf_path)
         
         progress.update(task, advance=STEP_UNITS)
 

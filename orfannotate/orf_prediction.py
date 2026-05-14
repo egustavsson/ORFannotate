@@ -3,6 +3,9 @@ import subprocess
 import logging
 import pandas as pd
 from Bio import SeqIO
+from collections import defaultdict
+from gffutils.exceptions import FeatureNotFoundError
+
 
 
 from orfannotate.orf_filter import get_best_orfs_by_cpat
@@ -89,6 +92,12 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
         canonical_orf_cpat_df["norm_seq_ID"]
     ).union(set(best_uorf.keys()))
 
+    # Load once before the loop
+    transcript_seqs = {
+        _normalize_tid(rec.id): rec
+        for rec in SeqIO.parse(utr5_fasta_path, "fasta")
+    }
+
     for tx in all_transcripts:
 
         selected_uorfs[tx] = {
@@ -113,14 +122,7 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
 
             # ---- KOZAK prediction for uORF ----
             try:
-                transcript_seqs = {
-                    rec.id: rec
-                    for rec in SeqIO.parse(utr5_fasta_path, "fasta")
-                }
-                seq_record = (
-                    transcript_seqs.get(tx)
-                    or transcript_seqs.get(_normalize_tid(tx))
-                )
+                seq_record = transcript_seqs.get(_normalize_tid(tx))
                 
                 if seq_record is not None:
                     # Get the uORF lengt
@@ -159,6 +161,7 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
 
     # ---- NMD analysis ----
     for tx, uorf_cds_only in cds_by_tx.items():
+        tx_norm = _normalize_tid(tx)  # ensure consistent key
         try:
             db_tx = gtf_db[tx]
             strand = db_tx.strand
@@ -173,7 +176,7 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
             else:
                 first_cds_start = uorf_cds_only[-1]["end"]
 
-            selected_uorfs[tx]["nmd_flag"] = predict_nmd(
+            selected_uorfs[tx_norm]["nmd_flag"] = predict_nmd(
                 first_cds_start, exon_features, strand
             )
 
@@ -214,7 +217,7 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
         lambda x: selected_uorfs.get(x, {}).get("coding_prob")
     )
 
-    orf_summary["aa_length_best_uORF"] = orf_summary["norm_tid"].map(
+    orf_summary["length_best_uORF"] = orf_summary["norm_tid"].map(
         lambda x: selected_uorfs.get(x, {}).get("uorf_length")
     )
 

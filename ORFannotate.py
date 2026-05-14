@@ -205,7 +205,8 @@ def main():
             if all_short:
                 logger.warning("All 5'UTR sequences are shorter than the minimum '{min_length_uorf}' amino acids uORF length configured. Eg, 'min_length_uorf=100', requires at least 300 nt plus start and stop codon constraints. Skipping uORF prediction step.")
             else:
-                predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_orf, min_length_uorf, slim_annotated_db, gtf_path)
+                # To predict uORFs pass annotated_gtf instead of gtf_path
+                predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_orf, min_length_uorf, slim_annotated_db, annotated_gtf)
         
         progress.update(task, advance=STEP_UNITS)
 

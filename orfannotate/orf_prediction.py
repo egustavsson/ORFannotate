@@ -141,38 +141,7 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
             except Exception as e:
                 selected_uorfs[tx]["kozak_strength"] = None
                 selected_uorfs[tx]["kozak_seq"] = None
-
-           
-
-
-            # ---- NMD analysis ----
-            try:
-                db_tx = gtf_db[tx]
-                strand = db_tx.strand
-
-                exon_features = [
-                    f for f in gtf_db.children(db_tx, featuretype="exon", order_by="start")
-                    if f.attributes.get("transcript_id", [None])[0] == tx
-                ]
-
-                ## Get CDS features to determine the position of the first CDS start codon  
-                uorf_cds_features = build_cds_features(gtf_db, {tx: uorf})
-                uorf_cds_only = [f for f in uorf_cds_features if f["feature"] == "CDS"]
-                if strand == "+":
-                    first_cds_start = uorf_cds_only[0]["start"]
-                else:
-                    first_cds_start = uorf_cds_only[-1]["end"]
-                
-                # Predict NMD sensitivity for the selected uORF
-                # The ending position of the uORF is relative to the 5'UTR sequence
-                selected_uorfs[tx]["nmd_flag"] = predict_nmd(
-                    first_cds_start, exon_features, strand
-                )
-
-            except KeyError:
-                print(f"Transcript {tx} not found in GTF database for NMD prediction. Setting NMD flag to 'NA'.")
-                pass
-            
+          
         
                 
     # ---- GTF -------------
@@ -181,8 +150,41 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
         if selected_uorfs.get(tx, {}).get("coding_prob") is not None
     }
     cds_features = build_cds_features(gtf_db, filtered_best_uorf)
+
+    # Group CDS features by transcript for NMD prediction
+    cds_by_tx = defaultdict(list)
+    for f in cds_features:
+        if f["feature"] == "CDS":
+            cds_by_tx[f["attributes"]["transcript_id"]].append(f)
+
+    # ---- NMD analysis ----
+    for tx, uorf_cds_only in cds_by_tx.items():
+        try:
+            db_tx = gtf_db[tx]
+            strand = db_tx.strand
+
+            exon_features = [
+                f for f in gtf_db.children(db_tx, featuretype="exon", order_by="start")
+                if f.attributes.get("transcript_id", [None])[0] == tx
+            ]
+
+            if strand == "+":
+                first_cds_start = uorf_cds_only[0]["start"]
+            else:
+                first_cds_start = uorf_cds_only[-1]["end"]
+
+            selected_uorfs[tx]["nmd_flag"] = predict_nmd(
+                first_cds_start, exon_features, strand
+            )
+
+        except (KeyError, FeatureNotFoundError):
+            print(f"Transcript {tx} not found in GTF database for NMD prediction. Setting NMD flag to 'NA'.")
+            pass
+
     annotated_gtf = os.path.join(output_dir, "uORFannotate_annotated.gtf")
     annotate_gtf_with_cds(gtf_path, cds_features, annotated_gtf)
+
+    
     
 
     # Load final summary.tsv file

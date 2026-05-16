@@ -93,7 +93,7 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
     ).union(set(best_uorf.keys()))
 
     # Load once before the loop
-    transcript_seqs = {
+    utr5_transcript_seqs = {
         _normalize_tid(rec.id): rec
         for rec in SeqIO.parse(utr5_fasta_path, "fasta")
     }
@@ -118,20 +118,20 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
         if uorf["end"] < orf_start and uorf["coding_prob"] > coding_cutoff:
 
             selected_uorfs[tx]["coding_prob"] = uorf["coding_prob"]
-            
 
             # ---- KOZAK prediction for uORF ----
             try:
-                seq_record = transcript_seqs.get(_normalize_tid(tx))
+                # Get 5'UTR sequence from current transcript
+                utr5seq_tx_record = utr5_transcript_seqs.get(_normalize_tid(tx))
                 
-                if seq_record is not None:
-                    # Get the uORF lengt
-                    uorf_start = int(uorf["start"])  
+                if utr5seq_tx_record is not None:
+
+                    # Get the uORF length
                     selected_uorfs[tx]["uorf_length"] = abs(int(uorf["start"]) - int(uorf["end"]) )
 
                     # Get the uORF sequence
-                    full_seq = str(seq_record.seq)
-                    kozak_strength, kozak_seq = score_kozak(full_seq, uorf_start)
+                    full_seq = str(utr5seq_tx_record.seq)
+                    kozak_strength, kozak_seq = score_kozak(full_seq, int(uorf["start"]))
                     
                     selected_uorfs[tx]["kozak_strength"] = kozak_strength
                     selected_uorfs[tx]["kozak_seq"] = kozak_seq
@@ -185,7 +185,10 @@ def predict_uorf(output_dir, hexamer_path, logit_model_path, coding_cutoff, top_
             pass
 
     annotated_gtf = os.path.join(output_dir, "uORFannotate_annotated.gtf")
-    annotate_gtf_with_cds(gtf_path, cds_features, annotated_gtf)
+
+    # Pass the set of uORF transcript IDs so annotate_gtf_with_cds only writes those
+    uorf_tids = set(cds_by_tx.keys())
+    annotate_gtf_with_cds(gtf_path, cds_features, annotated_gtf, restrict_to_tids=uorf_tids)
 
     
     

@@ -141,7 +141,7 @@ def build_cds_features(gtf_db, best_orfs):
 
 
 
-def annotate_gtf_with_cds(gtf_path, cds_features, output_path):
+def annotate_gtf_with_cds(gtf_path, cds_features, output_path, restrict_to_tids=None):
     """
     Write a cleaned GTF that contains, per transcript:
       - transcript line (from the original file)
@@ -185,6 +185,11 @@ def annotate_gtf_with_cds(gtf_path, cds_features, output_path):
     # Write cleaned, interleaved output
     with open(output_path, "wt", encoding="utf-8") as fout:
         for tid, t_line in transcript_lines.items():
+
+            # If a filter set is provided, skip transcripts not in it
+            if restrict_to_tids is not None and tid not in restrict_to_tids:
+                continue
+            
             # 1) transcript header
             fout.write(t_line)
 

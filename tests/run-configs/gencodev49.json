@@ -26,7 +26,11 @@
                 "kozak_strength":        "moderate",
                 "kozak_sequence":        "ATTGCCATGT",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -51,7 +55,11 @@
                 "kozak_strength":        "strong",
                 "kozak_sequence":        "GAGGGGATGG",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -76,7 +84,11 @@
                 "kozak_strength":        null,
                 "kozak_sequence":        null,
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -101,7 +113,11 @@
                 "kozak_strength":        "strong",
                 "kozak_sequence":        "GAGGGGATGG",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -126,7 +142,11 @@
                 "kozak_strength":        "moderate",
                 "kozak_sequence":        "AACACCATGC",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -151,7 +171,11 @@
                 "kozak_strength":        "strong",
                 "kozak_sequence":        "GAGGGGATGG",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -176,7 +200,11 @@
                 "kozak_strength":        "moderate",
                 "kozak_sequence":        "TTCAATATGC",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -201,7 +229,11 @@
                 "kozak_strength":        null,
                 "kozak_sequence":        null,
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -226,7 +258,11 @@
                 "kozak_strength":        null,
                 "kozak_sequence":        null,
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -251,7 +287,11 @@
                 "kozak_strength":        "strong",
                 "kozak_sequence":        "GAGAGGATGG",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -276,7 +316,11 @@
                 "kozak_strength":        "moderate",
                 "kozak_sequence":        "GTCGCGATGC",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -301,7 +345,11 @@
                 "kozak_strength":        null,
                 "kozak_sequence":        null,
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -326,7 +374,11 @@
                 "kozak_strength":        "moderate",
                 "kozak_sequence":        "AGGAAGATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -351,7 +403,11 @@
                 "kozak_strength":        "moderate",
                 "kozak_sequence":        "AGGAAGATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -373,10 +429,14 @@
                 "utr3_junctions":        1.0,
                 "stop_to_last_EJ":       84.0,
                 "NMD_sensitive":         true,
-                "kozak_strength":        "weak",
+                "kozak_strength":        null,
                 "kozak_sequence":        null,
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -401,7 +461,11 @@
                 "kozak_strength":        "weak",
                 "kozak_sequence":        "GCTCCAATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -426,7 +490,11 @@
                 "kozak_strength":        "weak",
                 "kozak_sequence":        "GCTCCAATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -451,7 +519,11 @@
                 "kozak_strength":        "weak",
                 "kozak_sequence":        "GCTCCAATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -476,7 +548,11 @@
                 "kozak_strength":        "weak",
                 "kozak_sequence":        "GCTCCAATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -501,7 +577,11 @@
                 "kozak_strength":        "weak",
                 "kozak_sequence":        "GCTCCAATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -526,7 +606,11 @@
                 "kozak_strength":        "weak",
                 "kozak_sequence":        "GCTCCAATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -551,7 +635,11 @@
                 "kozak_strength":        "weak",
                 "kozak_sequence":        "GCTCCAATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -576,7 +664,11 @@
                 "kozak_strength":        "weak",
                 "kozak_sequence":        "GCTCCAATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -601,7 +693,11 @@
                 "kozak_strength":        "weak",
                 "kozak_sequence":        "GCTCCAATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -626,7 +722,11 @@
                 "kozak_strength":        "weak",
                 "kozak_sequence":        "GCTCCAATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -651,7 +751,11 @@
                 "kozak_strength":        "weak",
                 "kozak_sequence":        "GCTCCAATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -676,7 +780,11 @@
                 "kozak_strength":        "weak",
                 "kozak_sequence":        "GCTCCAATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -701,7 +809,11 @@
                 "kozak_strength":        "weak",
                 "kozak_sequence":        "GCTCCAATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -726,7 +838,11 @@
                 "kozak_strength":        "weak",
                 "kozak_sequence":        "GCTCCAATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -751,7 +867,11 @@
                 "kozak_strength":        "strong",
                 "kozak_sequence":        "ACCAGGATGG",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -776,7 +896,11 @@
                 "kozak_strength":        "strong",
                 "kozak_sequence":        "ACCAGGATGG",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -801,7 +925,11 @@
                 "kozak_strength":        "strong",
                 "kozak_sequence":        "ACCAGGATGG",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -826,7 +954,11 @@
                 "kozak_strength":        "strong",
                 "kozak_sequence":        "ACCAGGATGG",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -851,7 +983,11 @@
                 "kozak_strength":        "strong",
                 "kozak_sequence":        "ACCAGGATGG",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -876,7 +1012,11 @@
                 "kozak_strength":        "strong",
                 "kozak_sequence":        "ACCAGGATGG",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -901,7 +1041,11 @@
                 "kozak_strength":        "strong",
                 "kozak_sequence":        "ACCAGGATGG",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
         },
         {
@@ -926,8 +1070,157 @@
                 "kozak_strength":        "moderate",
                 "kozak_sequence":        "ATCATCATGA",
                 "has_uORF":              false,
-                "coding_prob_best_uORF": null
+                "coding_prob_best_uORF": null,
+                "length_best_uORF": null, 
+                "nmd_sensitivity_best_uORF": null,
+                "kozak_strength_best_uORF": null, 
+                "kozak_seq_best_uORF": null
             }
+        },
+        {
+        "tid": "ENST00000596644.5",
+        "fields": {
+            "gene_id": "ENSG00000126456.17",
+            "chrom": "chr19",
+            "strand": "-",
+            "has_orf": true,
+            "orf_nt_len": 195,
+            "orf_aa_len": 64,
+            "utr5_nt_len": 282,
+            "utr3_nt_len": 73,
+            "coding_prob": 0.798216079,
+            "coding_class": "coding",
+            "total_junctions": 1,
+            "utr5_junctions": 0,
+            "cds_junctions": 1,
+            "utr3_junctions": 0,
+            "stop_to_last_EJ": 0,
+            "NMD_sensitive": false,
+            "kozak_strength": "strong",
+            "kozak_sequence": "CTCGTGATGG",
+            "has_uORF": true,
+            "coding_prob_best_uORF": 0.509683069,
+            "length_best_uORF": 35,
+            "nmd_sensitivity_best_uORF": false,
+            "kozak_strength_best_uORF": "strong",
+            "kozak_seq_best_uORF": "GGAGTCATGG"
+        }
+        },
+        {
+        "tid": "ENST00000248151.4",
+        "fields": {
+            "gene_id": "ENSG00000127589.5",
+            "chrom": "chr8",
+            "strand": "+",
+            "has_orf": true,
+            "orf_nt_len": 639,
+            "orf_aa_len": 212,
+            "utr5_nt_len": 696,
+            "utr3_nt_len": null,
+            "coding_prob": 0.99910352,
+            "coding_class": "coding",
+            "total_junctions": 0,
+            "utr5_junctions": 0,
+            "cds_junctions": 0,
+            "utr3_junctions": 0,
+            "stop_to_last_EJ": null,
+            "NMD_sensitive": false,
+            "kozak_strength": "moderate",
+            "kozak_sequence": "GACACCATGA",
+            "has_uORF": true,
+            "coding_prob_best_uORF": 0.998794072,
+            "length_best_uORF": 689,
+            "nmd_sensitivity_best_uORF": false,
+            "kozak_strength_best_uORF": null,
+            "kozak_seq_best_uORF": null
+        }
+        },
+        {
+        "tid": "ENST00000266594.4",
+        "fields": {
+            "gene_id": "ENSG00000139223.4",
+            "chrom": "chr12",
+            "strand": "+",
+            "has_orf": true,
+            "orf_nt_len": 315,
+            "orf_aa_len": 104,
+            "utr5_nt_len": 508,
+            "utr3_nt_len": 241,
+            "coding_prob": 0.990787202,
+            "coding_class": "coding",
+            "total_junctions": 0,
+            "utr5_junctions": 0,
+            "cds_junctions": 0,
+            "utr3_junctions": 0,
+            "stop_to_last_EJ": null,
+            "NMD_sensitive": false,
+            "kozak_strength": "moderate",
+            "kozak_sequence": "GAAAAGATGT",
+            "has_uORF": true,
+            "coding_prob_best_uORF": 0.740209001,
+            "length_best_uORF": 395,
+            "nmd_sensitivity_best_uORF": false,
+            "kozak_strength_best_uORF": "strong",
+            "kozak_seq_best_uORF": "TGAGAGATGG"
+        }
+        },
+        {
+        "tid": "ENST00000267984.4",
+        "fields": {
+            "gene_id": "ENSG00000140406.4",
+            "chrom": "chr15",
+            "strand": "+",
+            "has_orf": true,
+            "orf_nt_len": 1089,
+            "orf_aa_len": 362,
+            "utr5_nt_len": 1349,
+            "utr3_nt_len": 2428,
+            "coding_prob": 0.999994252,
+            "coding_class": "coding",
+            "total_junctions": 0,
+            "utr5_junctions": 0,
+            "cds_junctions": 0,
+            "utr3_junctions": 0,
+            "stop_to_last_EJ": null,
+            "NMD_sensitive": false,
+            "kozak_strength": "strong",
+            "kozak_sequence": "GGCGCGATGG",
+            "has_uORF": true,
+            "coding_prob_best_uORF": 0.742377225,
+            "length_best_uORF": 281,
+            "nmd_sensitivity_best_uORF": false,
+            "kozak_strength_best_uORF": "moderate",
+            "kozak_seq_best_uORF": "CGGTTCATGG"
+        }
+        },
+        {
+        "tid": "ENST00000605810.1",
+        "fields": {
+            "gene_id": "ENSG00000271034.1",
+            "chrom": "chr3",
+            "strand": "-",
+            "has_orf": true,
+            "orf_nt_len": 603,
+            "orf_aa_len": 200,
+            "utr5_nt_len": 469,
+            "utr3_nt_len": 468,
+            "coding_prob": 0.920743079,
+            "coding_class": "coding",
+            "total_junctions": 0,
+            "utr5_junctions": 0,
+            "cds_junctions": 0,
+            "utr3_junctions": 0,
+            "stop_to_last_EJ": null,
+            "NMD_sensitive": false,
+            "kozak_strength": "weak",
+            "kozak_sequence": "AAGTATATGT",
+            "has_uORF": true,
+            "coding_prob_best_uORF": 0.615760422,
+            "length_best_uORF": 194,
+            "nmd_sensitivity_best_uORF": false,
+            "kozak_strength_best_uORF": "moderate",
+            "kozak_seq_best_uORF": "AAGGGGATGC"
+        }
         }
     ]
 }

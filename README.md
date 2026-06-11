@@ -56,6 +56,22 @@ See the [Minimal test dataset](tests/test_data/README.md) for details.
 
 ---
 
+## Running tests
+
+ORFannotate includes unit tests and config-driven integration tests.
+
+To run the standard test suite:
+
+```bash
+pytest
+```
+
+To run the full ORFannotate integration test using the toy dataset:
+
+```bash
+pytest tests/test_orfannotate.py --run-config tests/run-configs/toy.json
+```
+
 ## Input
 
 The pipeline requires:
@@ -127,22 +143,23 @@ Use the `--species` argument to select the appropriate model. If `--coding-cutof
 ## Output files
 After a successful run, the following files will be saved in `<output_dir>`:
 
-| **File**                      | **Description**                                                  |
-|-------------------------------|------------------------------------------------------------------|
-| `transcripts.fa`              | FASTA file of full transcript sequences                          |
-| `CPAT/cpat.ORF_prob.tsv`      | CPAT output for the top N ORFs per transcript (default: 5)       |
-| `CPAT/cpat.ORF_prob.best.tsv` | CPAT output for the best ORF per transcript                      |
-| `CPAT/cpat_debug.tsv`         | Full CPAT-scored ORFs (optional debug output)                    |
-| `CPAT/CPAT_run_info.log`      | Full CPAT command log                                            |
-| `CPAT/CPAT.log`               | CPAT runtime messages                                            |
-| `CPAT_uORF/`                  | CPAT outputs for uORF prediction using 5′ UTR sequences          |
-| `cds.fa`                      | FASTA of predicted coding sequences for coding transcripts       |
-| `protein.fa`                  | FASTA of protein sequences translated from predicted CDS         |
-| `utr5.fa`                     | FASTA of 5′ UTRs for coding transcripts (if present)             |
-| `utr3.fa`                     | FASTA of 3′ UTRs for coding transcripts (if present)             |
-| `ORFannotate_annotated.gtf`   | GTF with predicted CDS features added to coding transcripts      |
-| `ORFannotate_summary.tsv`     | Final summary table with ORF, CDS, UTR, NMD, and other features  |
-| `ORFannotate.log`             | General pipeline log                                             |
+| **File**                      | **Description**                                                                                          |
+|-------------------------------|----------------------------------------------------------------------------------------------------------|
+| `transcripts.fa`              | FASTA file of full transcript sequences                                                                  |
+| `CPAT/cpat.ORF_prob.tsv`      | CPAT output for the top N ORFs per transcript (default: 5)                                               |
+| `CPAT/cpat.ORF_prob.best.tsv` | CPAT output for the best ORF per transcript                                                              |
+| `CPAT/cpat_debug.tsv`         | Full CPAT-scored ORFs (optional debug output)                                                            |
+| `CPAT/CPAT_run_info.log`      | Full CPAT command log                                                                                    |
+| `CPAT/CPAT.log`               | CPAT runtime messages                                                                                    |
+| `CPAT_uORF/`                  | CPAT outputs for uORF prediction using 5′ UTR sequences                                                  |
+| `cds.fa`                      | FASTA of predicted coding sequences for coding transcripts                                               |
+| `protein.fa`                  | FASTA of protein sequences translated from predicted CDS                                                 |
+| `utr5.fa`                     | FASTA of 5′ UTRs for coding transcripts (if present)                                                     |
+| `utr3.fa`                     | FASTA of 3′ UTRs for coding transcripts (if present)                                                     |
+| `ORFannotate_annotated.gtf`   | GTF with predicted CDS features added to coding transcripts                                              |
+| `uORFannotate_annotated.gtf`  | GTF with predicted uORF features added within 5′ UTR regions                                             |
+| `ORFannotate_summary.tsv`     | Final transcript-level summary with ORF, CDS, UTR, uORF, Kozak, NMD, and coding classification features  |
+| `ORFannotate.log`             | General pipeline log                                                                                     |
 
 
 > FASTA files are only generated for transcripts classified as coding. UTRs are only included if valid regions exist upstream or downstream of the predicted ORF.
@@ -177,6 +194,10 @@ The final output summary file `ORFannotate_summary.tsv` contains one row per tra
 | `utr3_nt_len`                 | 3′ UTR length in nucleotides (only if coding) |
 | `has_uORF`                    | `TRUE` if an uORF was predicted, `FALSE` otherwise |
 | `coding_prob_best_uORF`       | CPAT-predicted coding probability of the best uORF |
+| `length_best_uORF`            | Length of the best retained uORF |
+| `nmd_sensitivity_best_uORF`   | Predicted NMD sensitivity associated with the best retained uORF |
+| `kozak_strength_best_uORF`    | Kozak context strength of the best retained uORF start codon |
+| `kozak_seq_best_uORF`         | Sequence context surrounding the best retained uORF start codon |
 
 ---
 
@@ -233,7 +254,17 @@ The minimum uORF length is configurable per species in [config.json](data/config
 `min_length_uorf` field.
 
 uORFs are not evaluated for transcripts without a predicted canonical coding ORF.  
-If no qualifying uORF is detected, `has_uORF` is reported as `FALSE` and `coding_prob_best_uORF` as `NA`.
+If no qualifying uORF is detected, `has_uORF` is reported as `FALSE`, and the uORF-specific fields are reported as `NA`.
+
+For transcripts with a retained uORF, the summary reports the CPAT coding probability, uORF length, predicted NMD sensitivity, Kozak strength, and Kozak sequence for the best retained uORF using the following columns:
+
+- `coding_prob_best_uORF`
+- `length_best_uORF`
+- `nmd_sensitivity_best_uORF`
+- `kozak_strength_best_uORF`
+- `kozak_seq_best_uORF`
+
+Selected uORFs are also written to `uORFannotate_annotated.gtf`, where they are added as uORF features within the predicted 5′ UTR regions.
 
 ## Directory Structure
 
@@ -252,14 +283,19 @@ ORFannotate/
 │   ├── orf_filter.py
 │   └── summarise.py
 |
-├── tests/                         # Unit tests (pytest)
+├── tests/                         # Unit and integration tests (pytest)
+│   ├── __init__.py
+│   ├── conftest.py                # Adds pytest options, including --run-config
+│   ├── run-configs/               # JSON configs for integration test runs
 │   ├── test_imports.py
 │   ├── test_kozak.py
 │   ├── test_nmd.py
 │   ├── test_orf_filter.py
-|   └── test_data/
-|       ├── toy.fa
-|       └── toy.gtf
+│   ├── test_orfannotate.py        # Config-driven integration tests
+│   └── test_data/
+│       ├── README.md
+│       ├── toy.fa
+│       └── toy.gtf
 │
 ├── data/                          # CPAT model files (hexamer and logitModel)
 │   ├── Human_Hexamer.tsv
